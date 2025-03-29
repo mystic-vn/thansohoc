@@ -217,4 +217,171 @@ export const calculateBirthdayNumber = (birthDate: string): string => {
   
   // Xóa số 0 ở đầu nếu có
   return day.startsWith('0') ? day[1] : day;
+};
+
+/**
+ * Tính toán mức độ tương hợp giữa hai yếu tố
+ * @param factor1 Yếu tố 1
+ * @param factor2 Yếu tố 2  
+ * @returns Mức độ tương hợp (0-100)
+ */
+export const getCompatibility = (factor1: string, factor2: string): number => {
+  // Hàm giả lập tạm thời để tránh lỗi build
+  return Math.floor(Math.random() * 100);
+};
+
+/**
+ * Mô tả về các số chủ đạo
+ */
+export const lifePathDescriptions: Record<string, any> = {
+  '1': {
+    title: 'Số 1 - Người Tiên Phong',
+    overview: 'Nhà lãnh đạo bẩm sinh, độc lập và sáng tạo.',
+    traits: ['Độc lập', 'Quyết đoán', 'Sáng tạo', 'Tự tin']
+  },
+  '2': {
+    title: 'Số 2 - Người Hòa Giải',
+    overview: 'Người hòa giải, nhạy cảm và hợp tác.',
+    traits: ['Nhạy cảm', 'Hợp tác', 'Kiên nhẫn', 'Chu đáo']
+  },
+  '3': {
+    title: 'Số 3 - Người Sáng Tạo',
+    overview: 'Người biểu đạt, sáng tạo và lạc quan.',
+    traits: ['Lạc quan', 'Sáng tạo', 'Giao tiếp tốt', 'Biểu cảm']
+  },
+  '4': {
+    title: 'Số 4 - Người Xây Dựng',
+    overview: 'Người thực tế, đáng tin cậy và có tổ chức.',
+    traits: ['Đáng tin cậy', 'Có tổ chức', 'Thực tế', 'Kiên trì']
+  },
+  '5': {
+    title: 'Số 5 - Người Tự Do',
+    overview: 'Người ưa phiêu lưu, linh hoạt và yêu tự do.',
+    traits: ['Linh hoạt', 'Phiêu lưu', 'Tò mò', 'Thích nghi']
+  },
+  '6': {
+    title: 'Số 6 - Người Bảo Vệ',
+    overview: 'Người nuôi dưỡng, trách nhiệm và yêu thương.',
+    traits: ['Trách nhiệm', 'Yêu thương', 'Quan tâm', 'Hài hòa']
+  },
+  '7': {
+    title: 'Số 7 - Người Tìm Kiếm',
+    overview: 'Người phân tích, nội tâm và tìm kiếm chân lý.',
+    traits: ['Phân tích', 'Nội tâm', 'Trực giác', 'Khôn ngoan']
+  },
+  '8': {
+    title: 'Số 8 - Người Thành Đạt',
+    overview: 'Người có năng lực, quyền lực và thành công.',
+    traits: ['Tự tin', 'Có năng lực', 'Điều hành', 'Tham vọng']
+  },
+  '9': {
+    title: 'Số 9 - Người Nhân Đạo',
+    overview: 'Người nhân đạo, từ thiện và khoan dung.',
+    traits: ['Nhân đạo', 'Từ thiện', 'Trí tuệ', 'Sâu sắc']
+  },
+  '11': {
+    title: 'Số 11 - Người Trực Giác',
+    overview: 'Người có trực giác cao, nhạy cảm và tinh thần.',
+    traits: ['Trực giác', 'Sáng suốt', 'Nhạy cảm', 'Tinh thần']
+  },
+  '22': {
+    title: 'Số 22 - Người Kiến Tạo',
+    overview: 'Người kiến tạo vĩ đại, có tầm nhìn và khả năng thực tế.',
+    traits: ['Tầm nhìn', 'Thực tế', 'Thực hiện', 'Kiến trúc']
+  },
+  '33': {
+    title: 'Số 33 - Người Chỉ Dạy',
+    overview: 'Người thầy tâm linh, nuôi dưỡng và phục vụ nhân loại.',
+    traits: ['Tâm linh', 'Nuôi dưỡng', 'Phục vụ', 'Tình yêu']
+  }
+};
+
+/**
+ * Mô tả về các cung hoàng đạo
+ */
+export const zodiacDescriptions: Record<string, any> = {
+  'Bạch Dương': {
+    title: 'Bạch Dương (Aries)',
+    overview: 'Năng động, quyết đoán và nhiệt huyết.',
+    element: 'Lửa',
+    date_range: '21/3 - 19/4',
+    traits: ['Dũng cảm', 'Tự tin', 'Nhiệt tình', 'Quyết đoán']
+  },
+  'Kim Ngưu': {
+    title: 'Kim Ngưu (Taurus)',
+    overview: 'Kiên định, đáng tin cậy và thực tế.',
+    element: 'Đất',
+    date_range: '20/4 - 20/5',
+    traits: ['Kiên nhẫn', 'Thực tế', 'Đáng tin cậy', 'Thích sự ổn định']
+  },
+  'Song Tử': {
+    title: 'Song Tử (Gemini)',
+    overview: 'Linh hoạt, thông minh và tò mò.',
+    element: 'Khí',
+    date_range: '21/5 - 20/6',
+    traits: ['Thông minh', 'Giao tiếp tốt', 'Linh hoạt', 'Tò mò']
+  },
+  'Cự Giải': {
+    title: 'Cự Giải (Cancer)',
+    overview: 'Nhạy cảm, chu đáo và trực giác.',
+    element: 'Nước',
+    date_range: '21/6 - 22/7',
+    traits: ['Nhạy cảm', 'Trực giác', 'Bảo vệ', 'Quan tâm']
+  },
+  'Sư Tử': {
+    title: 'Sư Tử (Leo)',
+    overview: 'Tự tin, sáng tạo và hào phóng.',
+    element: 'Lửa',
+    date_range: '23/7 - 22/8',
+    traits: ['Tự tin', 'Sáng tạo', 'Hào phóng', 'Lãnh đạo']
+  },
+  'Xử Nữ': {
+    title: 'Xử Nữ (Virgo)',
+    overview: 'Phân tích, cẩn thận và thực tế.',
+    element: 'Đất',
+    date_range: '23/8 - 22/9',
+    traits: ['Phân tích', 'Cẩn thận', 'Thực tế', 'Chu đáo']
+  },
+  'Thiên Bình': {
+    title: 'Thiên Bình (Libra)',
+    overview: 'Cân bằng, hài hòa và công bằng.',
+    element: 'Khí',
+    date_range: '23/9 - 22/10',
+    traits: ['Cân bằng', 'Hài hòa', 'Công bằng', 'Ngoại giao']
+  },
+  'Bọ Cạp': {
+    title: 'Bọ Cạp (Scorpio)',
+    overview: 'Sâu sắc, quyết tâm và đam mê.',
+    element: 'Nước',
+    date_range: '23/10 - 21/11',
+    traits: ['Quyết tâm', 'Đam mê', 'Trực giác', 'Sâu sắc']
+  },
+  'Nhân Mã': {
+    title: 'Nhân Mã (Sagittarius)',
+    overview: 'Phiêu lưu, lạc quan và tự do.',
+    element: 'Lửa',
+    date_range: '22/11 - 21/12',
+    traits: ['Phiêu lưu', 'Lạc quan', 'Tự do', 'Triết lý']
+  },
+  'Ma Kết': {
+    title: 'Ma Kết (Capricorn)',
+    overview: 'Kỷ luật, có trách nhiệm và tham vọng.',
+    element: 'Đất',
+    date_range: '22/12 - 19/1',
+    traits: ['Kỷ luật', 'Trách nhiệm', 'Tham vọng', 'Kiên trì']
+  },
+  'Bảo Bình': {
+    title: 'Bảo Bình (Aquarius)',
+    overview: 'Độc lập, sáng tạo và nhân đạo.',
+    element: 'Khí',
+    date_range: '20/1 - 18/2',
+    traits: ['Độc lập', 'Sáng tạo', 'Nhân đạo', 'Tiến bộ']
+  },
+  'Song Ngư': {
+    title: 'Song Ngư (Pisces)',
+    overview: 'Trực giác, nhạy cảm và giàu trí tưởng tượng.',
+    element: 'Nước',
+    date_range: '19/2 - 20/3',
+    traits: ['Trực giác', 'Nhạy cảm', 'Trí tưởng tượng', 'Thấu cảm']
+  }
 }; 

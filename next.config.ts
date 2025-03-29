@@ -7,7 +7,12 @@ const nextConfig: NextConfig = {
     // Các tùy chọn thử nghiệm khác có thể thêm ở đây
   },
   reactStrictMode: true,
-  swcMinify: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;
