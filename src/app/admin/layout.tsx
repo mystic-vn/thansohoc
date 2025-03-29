@@ -39,14 +39,20 @@ export default function AdminLayout({
         // Kiểm tra xác thực và quyền admin
         const authenticated = await isAuthenticated();
         if (!authenticated) {
+          console.log("⛔ Người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập");
           router.push('/login');
           return;
         }
         
         const adminAccess = await isAdmin();
+        console.log("👮 Kết quả kiểm tra quyền admin:", adminAccess);
+        
         if (!adminAccess) {
+          console.log("⛔ Người dùng không có quyền admin, chuyển hướng đến trang chủ");
           router.push('/');
           return;
+        } else {
+          console.log("✅ Người dùng có quyền admin, cho phép truy cập");
         }
         
         // Lấy thông tin người dùng từ localStorage

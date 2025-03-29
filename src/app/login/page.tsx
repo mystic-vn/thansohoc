@@ -57,6 +57,20 @@ export default function LoginPage() {
         localStorage.setItem('token', response.token);
         localStorage.setItem('userName', `${response.firstName} ${response.lastName}`);
         
+        // Lưu thông tin người dùng đầy đủ vào localStorage để dùng cho kiểm tra quyền
+        const userData = {
+          id: response.id,
+          _id: response._id,
+          firstName: response.firstName,
+          lastName: response.lastName,
+          email: response.email,
+          role: response.role,
+          isAdmin: response.role === 'Admin',
+          status: response.status
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
+        console.log('Đã lưu thông tin người dùng:', userData);
+        
         // Đặt cookie với thời hạn 7 ngày
         const cookieName = process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'token';
         document.cookie = `${cookieName}=${response.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
