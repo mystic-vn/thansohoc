@@ -47,7 +47,7 @@ export async function GET(request: Request) {
         },
         'numerology-api',
         cacheParams,
-        3600 // Cache 1 giờ
+        86400 // Cache 1 ngày thay vì 1 giờ
       );
       
       return NextResponse.json(data);
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
       },
       'numerology-api',
       cacheParams,
-      3600 // Cache 1 giờ
+      86400 // Cache 1 ngày thay vì 1 giờ
     );
     
     if (!data) {

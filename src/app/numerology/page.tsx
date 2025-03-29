@@ -144,13 +144,10 @@ export default function NumerologyPage() {
               const day = normalizedDate.split('-')[2];
               setBirthDayNumber(day.startsWith('0') ? day[1] : day);
               
-              // Giả lập các số khác (trong thực tế, bạn sẽ sử dụng hàm tính toán thực tế)
-              // Tính số định mệnh từ tên đầy đủ
-              setDestinyNumber(calculateSimpleNumber());
-              // Tính số linh hồn từ nguyên âm trong tên
-              setSoulNumber(calculateSimpleNumber());
-              // Tính số cá tính từ phụ âm trong tên
-              setPersonalityNumber(calculateSimpleNumber());
+              // Các số còn lại để trống, sẽ hiển thị "Đang cập nhật" 
+              setDestinyNumber('');
+              setSoulNumber('');
+              setPersonalityNumber('');
               
               // Lấy dữ liệu từ database
               await fetchNumerologyData(lpNumber);
@@ -461,11 +458,13 @@ export default function NumerologyPage() {
               <h3 className="text-xl font-bold mb-4 text-center">Số Định Mệnh</h3>
               <div className="flex justify-center mb-4">
                 <div className="h-20 w-20 rounded-full bg-gradient-to-r from-yellow-500 to-amber-600 flex items-center justify-center text-4xl font-bold shadow-lg">
-                  {destinyNumber}
+                  {destinyNumber || '?'}
                 </div>
               </div>
               <p className="text-center">
-                Thể hiện mục đích sống, nhiệm vụ và sứ mệnh của bạn trong cuộc đời này.
+                {destinyNumber ? 
+                "Thể hiện mục đích sống, nhiệm vụ và sứ mệnh của bạn trong cuộc đời này." :
+                "Đang cập nhật. Vui lòng quay lại sau."}
               </p>
             </div>
             
@@ -473,11 +472,13 @@ export default function NumerologyPage() {
               <h3 className="text-xl font-bold mb-4 text-center">Số Linh Hồn</h3>
               <div className="flex justify-center mb-4">
                 <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-4xl font-bold shadow-lg">
-                  {soulNumber}
+                  {soulNumber || '?'}
                 </div>
               </div>
               <p className="text-center">
-                Phản ánh bản chất bên trong, khao khát và động lực sâu thẳm của bạn.
+                {soulNumber ? 
+                "Phản ánh bản chất bên trong, khao khát và động lực sâu thẳm của bạn." :
+                "Đang cập nhật. Vui lòng quay lại sau."}
               </p>
             </div>
             
@@ -485,11 +486,13 @@ export default function NumerologyPage() {
               <h3 className="text-xl font-bold mb-4 text-center">Số Cá Tính</h3>
               <div className="flex justify-center mb-4">
                 <div className="h-20 w-20 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center text-4xl font-bold shadow-lg">
-                  {personalityNumber}
+                  {personalityNumber || '?'}
                 </div>
               </div>
               <p className="text-center">
-                Thể hiện cách bạn thể hiện bản thân với thế giới bên ngoài.
+                {personalityNumber ? 
+                "Thể hiện cách bạn thể hiện bản thân với thế giới bên ngoài." :
+                "Đang cập nhật. Vui lòng quay lại sau."}
               </p>
             </div>
             
@@ -514,14 +517,14 @@ export default function NumerologyPage() {
                 <div className="grid grid-cols-3 grid-rows-3 gap-4 h-full">
                   {Array.from({ length: 9 }).map((_, i) => (
                     <div key={i} className="border border-white/30 rounded-md flex items-center justify-center text-xl font-bold">
-                      {/* Đây là nơi sẽ hiển thị các số trong biểu đồ ngày sinh */}
-                      {Math.random() > 0.5 ? i + 1 : ''}
+                      {/* Hiển thị đang cập nhật thay vì số ngẫu nhiên */}
+                      {i + 1}
                     </div>
                   ))}
                 </div>
               </div>
               <p className="text-center mt-4">
-                Biểu đồ ngày sinh thể hiện các năng lượng và khả năng tiềm ẩn của bạn.
+                Đang cập nhật. Vui lòng quay lại sau.
               </p>
             </div>
             
@@ -529,11 +532,11 @@ export default function NumerologyPage() {
               <h3 className="text-xl font-bold mb-4 text-center">Năm cá nhân: {new Date().getFullYear()}</h3>
               <div className="flex justify-center mb-4">
                 <div className="h-20 w-20 rounded-full bg-gradient-to-r from-pink-500 to-rose-600 flex items-center justify-center text-4xl font-bold shadow-lg">
-                  {calculateSimpleNumber()}
+                  ?
                 </div>
               </div>
-              <p className="mb-4">
-                Năm {new Date().getFullYear()} là năm mang năng lượng số {calculateSimpleNumber()} đối với bạn. Đây là thời điểm thuận lợi để...
+              <p className="mb-4 text-center">
+                Đang cập nhật. Vui lòng quay lại sau.
               </p>
               <div className="text-center">
                 <Link
@@ -552,18 +555,12 @@ export default function NumerologyPage() {
             <p className="text-center mb-6">
               Khám phá mức độ tương hợp giữa bạn và người khác dựa trên các con số thần số học.
             </p>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <div className="flex items-center justify-center">
               <Link
                 href="/compatibility"
                 className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full text-lg font-medium hover:from-indigo-600 hover:to-purple-700 transition shadow-lg text-center"
               >
                 Kiểm tra tương hợp
-              </Link>
-              <Link
-                href="/compatibility-guide"
-                className="px-6 py-3 bg-white/10 border border-white/20 rounded-full text-lg font-medium hover:bg-white/20 transition shadow-lg text-center"
-              >
-                Hướng dẫn tương hợp
               </Link>
             </div>
           </div>

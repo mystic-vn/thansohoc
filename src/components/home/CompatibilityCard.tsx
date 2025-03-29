@@ -32,7 +32,7 @@ const CompatibilityCard = ({
 
   if (!compatibilityData) {
     return (
-      <Card className="border border-purple-500/30 bg-gradient-to-br from-purple-900/30 to-indigo-900/40 backdrop-blur-sm">
+      <Card className="border border-purple-500/30 bg-gradient-to-br from-purple-900/30 to-indigo-900/40 backdrop-blur-sm mt-8">
         <CardHeader>
           <CardTitle className="text-center text-white">Phân Tích Tính Cách</CardTitle>
           <CardDescription className="text-center text-white/70">
@@ -131,85 +131,105 @@ const CompatibilityCard = ({
     }
   };
 
+  // Xác định màu gradient dựa trên điểm số
+  const getScoreGradient = () => {
+    if (score >= 80) return 'from-green-500 to-emerald-600';
+    if (score >= 65) return 'from-teal-500 to-cyan-600';
+    if (score >= 50) return 'from-blue-500 to-indigo-600';
+    if (score >= 35) return 'from-yellow-500 to-orange-600';
+    return 'from-orange-500 to-red-600';
+  };
+
   return (
     <>
-      <Card className="border border-purple-500/30 bg-gradient-to-br from-purple-900/30 to-indigo-900/40 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-center text-lg text-white">Phân Tích Tính Cách</CardTitle>
-          <CardDescription className="text-center text-white/70">
+      <Card className="border-purple-500/30 bg-gradient-to-br from-violet-900/40 to-fuchsia-900/30 backdrop-blur-md shadow-xl mt-8">
+        <CardHeader className="bg-gradient-to-b from-indigo-900/60 to-transparent pb-2">
+          <CardTitle className="text-center text-xl text-white flex justify-center items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-300">
+              <path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z" />
+              <path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1" />
+            </svg>
+            Phân Tích Tính Cách
+          </CardTitle>
+          <CardDescription className="text-center text-purple-200/80">
             Sự kết hợp giữa số chủ đạo và cung hoàng đạo
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-white/80 space-y-4">
-          <div className="flex items-center justify-center gap-3 text-lg">
-            <span className="font-bold text-pink-300">{lifePathNumber}</span>
-            <span className="text-white/60">+</span>
-            <span className="font-bold text-cyan-300">{zodiacSign}</span>
+        <CardContent className="text-white/80 space-y-4 px-6 py-4">
+          <div className="flex items-center justify-center gap-4 text-xl">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-pink-600/30 border border-pink-500/30">
+              <span className="font-bold text-pink-300">{lifePathNumber}</span>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+              <line x1="12" y1="16" x2="12" y2="8"></line>
+            </svg>
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600/30 border border-blue-500/30">
+              <span className="font-bold text-cyan-300">{ZODIAC_SYMBOLS[zodiacSign] || zodiacSign[0]}</span>
+            </div>
           </div>
           
-          <div className="space-y-2">
-            <h4 className="font-medium text-center">Điểm Hài Hòa Nội Tại</h4>
-            <div className="w-full bg-gray-800/50 rounded-full h-4">
+          <div className="bg-black/20 rounded-lg p-4 backdrop-blur-sm">
+            <h4 className="font-medium text-center text-purple-200 mb-3">Điểm Hài Hòa Nội Tại</h4>
+            <div className="w-full bg-black/30 rounded-full h-4 mb-1">
               <div
-                className={`h-4 rounded-full ${
-                  score >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
-                  score >= 65 ? 'bg-gradient-to-r from-teal-500 to-cyan-500' :
-                  score >= 50 ? 'bg-gradient-to-r from-blue-500 to-indigo-500' :
-                  score >= 35 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
-                  'bg-gradient-to-r from-orange-500 to-red-500'
-                }`}
+                className={`h-4 rounded-full bg-gradient-to-r ${getScoreGradient()}`}
                 style={{ width: `${score}%` }}
               />
             </div>
-            <p className="text-center text-sm flex justify-center items-center gap-1">
-              {Math.round(score)}/100
-              <span className={`inline-block w-2 h-2 rounded-full ml-1 ${
-                score >= 80 ? 'bg-green-500' :
-                score >= 65 ? 'bg-teal-500' :
-                score >= 50 ? 'bg-blue-500' :
-                score >= 35 ? 'bg-yellow-500' :
-                'bg-red-500'
-              }`}></span>
+            <p className="text-center text-sm flex justify-center items-center gap-1 text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-300">
+                <path d="M12 20v-6M6 20V10M18 20V4" />
+              </svg>
+              <span className="font-semibold">{Math.round(score)}</span>/100
             </p>
           </div>
 
-          <p className="text-sm text-white/70 mt-2 text-center">
-            {overview.length > 120 ? overview.substring(0, 120) + "..." : overview}
-          </p>
+          <div className="bg-black/20 backdrop-blur-sm rounded-lg p-4">
+            <p className="text-sm text-white leading-relaxed">
+              {overview.length > 120 ? overview.substring(0, 120) + "..." : overview}
+            </p>
+          </div>
           
-          {strengths.length > 0 && (
-            <div className="pt-2 border-t border-white/10">
-              <h4 className="text-sm font-medium text-green-300 mb-1 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 mr-1">
-                  <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
-                </svg>
-                Điểm mạnh
-              </h4>
-              <div className="text-xs text-white/70">{strengths[0]?.substring(0, 70)}...</div>
-            </div>
-          )}
-          
-          {challenges.length > 0 && (
-            <div className="pt-2 border-t border-white/10">
-              <h4 className="text-sm font-medium text-red-300 mb-1 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 mr-1">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                </svg>
-                Thách thức
-              </h4>
-              <div className="text-xs text-white/70">{challenges[0]?.substring(0, 70)}...</div>
-            </div>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {strengths.length > 0 && (
+              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3">
+                <h4 className="text-sm font-medium text-green-300 mb-2 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 mr-1">
+                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                  </svg>
+                  Điểm mạnh
+                </h4>
+                <div className="text-xs text-white/80">{strengths[0]?.substring(0, 70)}...</div>
+              </div>
+            )}
+            
+            {challenges.length > 0 && (
+              <div className="bg-black/20 backdrop-blur-sm rounded-lg p-3">
+                <h4 className="text-sm font-medium text-red-300 mb-2 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 mr-1">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                  </svg>
+                  Thách thức
+                </h4>
+                <div className="text-xs text-white/80">{challenges[0]?.substring(0, 70)}...</div>
+              </div>
+            )}
+          </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-2">
+        <CardFooter className="flex justify-center p-4 pt-2">
           <Button 
             onClick={openModal} 
             variant="outline" 
-            className="w-full bg-white/5 hover:bg-white/10 text-white border-white/20"
+            className="w-full bg-white/5 hover:bg-white/10 text-white border-white/20 flex items-center gap-2"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 16v-4"></path>
+              <path d="M12 8h.01"></path>
+            </svg>
             Xem Chi Tiết
           </Button>
-         
         </CardFooter>
       </Card>
 
@@ -231,6 +251,22 @@ const CompatibilityCard = ({
       />
     </>
   );
+};
+
+// Thêm ZODIAC_SYMBOLS để hiển thị biểu tượng cung hoàng đạo
+const ZODIAC_SYMBOLS: Record<string, string> = {
+  'Bạch Dương': '♈',
+  'Kim Ngưu': '♉',
+  'Song Tử': '♊',
+  'Cự Giải': '♋',
+  'Sư Tử': '♌',
+  'Xử Nữ': '♍',
+  'Thiên Bình': '♎',
+  'Bọ Cạp': '♏',
+  'Nhân Mã': '♐',
+  'Ma Kết': '♑',
+  'Bảo Bình': '♒',
+  'Song Ngư': '♓',
 };
 
 export default CompatibilityCard; 

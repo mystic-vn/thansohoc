@@ -3,22 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import Image from 'next/image';
-
-const ZODIAC_IMAGES: Record<string, string> = {
-  'Bạch Dương': '/images/zodiac/aries.png',
-  'Kim Ngưu': '/images/zodiac/taurus.png',
-  'Song Tử': '/images/zodiac/gemini.png',
-  'Cự Giải': '/images/zodiac/cancer.png',
-  'Sư Tử': '/images/zodiac/leo.png',
-  'Xử Nữ': '/images/zodiac/virgo.png',
-  'Thiên Bình': '/images/zodiac/libra.png',
-  'Bọ Cạp': '/images/zodiac/scorpio.png',
-  'Nhân Mã': '/images/zodiac/sagittarius.png',
-  'Ma Kết': '/images/zodiac/capricorn.png',
-  'Bảo Bình': '/images/zodiac/aquarius.png',
-  'Song Ngư': '/images/zodiac/pisces.png',
-};
 
 const ZODIAC_SYMBOLS: Record<string, string> = {
   'Bạch Dương': '♈',
@@ -33,6 +17,22 @@ const ZODIAC_SYMBOLS: Record<string, string> = {
   'Ma Kết': '♑',
   'Bảo Bình': '♒',
   'Song Ngư': '♓',
+};
+
+// Màu sắc cho các cung hoàng đạo
+const ZODIAC_COLORS: Record<string, { from: string, to: string, text: string }> = {
+  'Bạch Dương': { from: 'from-red-500', to: 'to-orange-500', text: 'text-red-100' },
+  'Kim Ngưu': { from: 'from-green-500', to: 'to-emerald-600', text: 'text-green-100' },
+  'Song Tử': { from: 'from-yellow-400', to: 'to-amber-500', text: 'text-yellow-100' },
+  'Cự Giải': { from: 'from-blue-400', to: 'to-sky-500', text: 'text-blue-100' },
+  'Sư Tử': { from: 'from-orange-400', to: 'to-amber-600', text: 'text-orange-100' },
+  'Xử Nữ': { from: 'from-emerald-400', to: 'to-teal-600', text: 'text-emerald-100' },
+  'Thiên Bình': { from: 'from-pink-400', to: 'to-rose-500', text: 'text-pink-100' },
+  'Bọ Cạp': { from: 'from-purple-500', to: 'to-violet-600', text: 'text-purple-100' },
+  'Nhân Mã': { from: 'from-indigo-400', to: 'to-blue-600', text: 'text-indigo-100' },
+  'Ma Kết': { from: 'from-gray-600', to: 'to-gray-800', text: 'text-gray-100' },
+  'Bảo Bình': { from: 'from-cyan-400', to: 'to-blue-600', text: 'text-cyan-100' },
+  'Song Ngư': { from: 'from-blue-300', to: 'to-indigo-500', text: 'text-blue-100' },
 };
 
 interface ZodiacCardProps {
@@ -51,7 +51,11 @@ const ZodiacCard: React.FC<ZodiacCardProps> = ({ userData, userZodiac, onViewDet
   }
 
   const zodiacSymbol = ZODIAC_SYMBOLS[zodiacSign] || '';
-  const zodiacImagePath = ZODIAC_IMAGES[zodiacSign] || '';
+  
+  // Lấy màu dựa trên cung hoàng đạo hoặc sử dụng màu mặc định
+  const colorFrom = ZODIAC_COLORS[zodiacSign]?.from || 'from-blue-500';
+  const colorTo = ZODIAC_COLORS[zodiacSign]?.to || 'to-indigo-500';
+  const textColor = ZODIAC_COLORS[zodiacSign]?.text || 'text-blue-100';
 
   // Đảm bảo rằng chúng ta có dữ liệu hoặc cung cấp giá trị mặc định
   const dateRange = userZodiac?.date_range || "";
@@ -83,17 +87,11 @@ const ZodiacCard: React.FC<ZodiacCardProps> = ({ userData, userZodiac, onViewDet
         </div>
 
         <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
-          {zodiacImagePath && (
-            <div className="relative w-24 h-24 md:w-32 md:h-32 mx-auto md:mx-0 mb-4 md:mb-0">
-              <Image
-                src={zodiacImagePath}
-                alt={`Cung ${zodiacSign}`}
-                width={128}
-                height={128}
-                className="object-contain"
-              />
+          <div className="relative w-24 h-24 md:w-28 md:h-28 flex items-center justify-center mx-auto md:mx-0 mb-4 md:mb-0">
+            <div className={`w-full h-full flex items-center justify-center text-5xl font-bold bg-gradient-to-br ${colorFrom} ${colorTo} rounded-full shadow-lg`}>
+              <span className={`${textColor}`}>{zodiacSymbol}</span>
             </div>
-          )}
+          </div>
 
           <div className="flex-1">
             {dateRange && (

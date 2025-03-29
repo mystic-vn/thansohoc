@@ -70,6 +70,7 @@ export default function Header() {
             <Link href="/" className="hover:text-pink-300 transition">Trang chủ</Link>
             <Link href="/numerology" className="hover:text-pink-300 transition">Thần Số Học</Link>
             <Link href="/astrology" className="hover:text-pink-300 transition">Chiêm Tinh</Link>
+            <Link href="/compatibility" className="hover:text-pink-300 transition">Kiểm tra tương hợp</Link>
             
             {loggedIn ? (
               <div className="relative group">
@@ -157,6 +158,13 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Chiêm Tinh
+              </Link>
+              <Link 
+                href="/compatibility" 
+                className="hover:text-pink-300 transition"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Kiểm tra tương hợp
               </Link>
               
               {loggedIn ? (

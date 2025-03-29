@@ -5,46 +5,48 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 
-// Thêm một bản đồ biểu tượng và hình ảnh
-const ZODIAC_IMAGES: Record<string, string> = {
-  'Bạch Dương': '/images/zodiac/aries.png',
-  'Kim Ngưu': '/images/zodiac/taurus.png',
-  'Song Tử': '/images/zodiac/gemini.png',
-  'Cự Giải': '/images/zodiac/cancer.png',
-  'Sư Tử': '/images/zodiac/leo.png',
-  'Xử Nữ': '/images/zodiac/virgo.png',
-  'Thiên Bình': '/images/zodiac/libra.png',
-  'Bọ Cạp': '/images/zodiac/scorpio.png',
-  'Nhân Mã': '/images/zodiac/sagittarius.png',
-  'Ma Kết': '/images/zodiac/capricorn.png',
-  'Bảo Bình': '/images/zodiac/aquarius.png',
-  'Song Ngư': '/images/zodiac/pisces.png',
+// Thêm một bản đồ biểu tượng và slug cho các cung hoàng đạo
+const ZODIAC_SYMBOLS: Record<string, string> = {
+  'bach-duong': '♈',
+  'kim-nguu': '♉',
+  'song-tu': '♊',
+  'cu-giai': '♋',
+  'su-tu': '♌',
+  'xu-nu': '♍',
+  'thien-binh': '♎',
+  'bo-cap': '♏',
+  'nhan-ma': '♐',
+  'ma-ket': '♑',
+  'bao-binh': '♒',
+  'song-ngu': '♓',
 };
 
-const ZODIAC_SYMBOLS: Record<string, string> = {
-  'Bạch Dương': '♈',
-  'Kim Ngưu': '♉',
-  'Song Tử': '♊',
-  'Cự Giải': '♋',
-  'Sư Tử': '♌',
-  'Xử Nữ': '♍',
-  'Thiên Bình': '♎',
-  'Bọ Cạp': '♏',
-  'Nhân Mã': '♐',
-  'Ma Kết': '♑',
-  'Bảo Bình': '♒',
-  'Song Ngư': '♓',
+// Bản đồ chuyển đổi từ slug không dấu sang tên tiếng Việt có dấu
+const ZODIAC_NAMES: Record<string, string> = {
+  'bach-duong': 'Bạch Dương',
+  'kim-nguu': 'Kim Ngưu',
+  'song-tu': 'Song Tử',
+  'cu-giai': 'Cự Giải',
+  'su-tu': 'Sư Tử',
+  'xu-nu': 'Xử Nữ',
+  'thien-binh': 'Thiên Bình',
+  'bo-cap': 'Bọ Cạp',
+  'nhan-ma': 'Nhân Mã',
+  'ma-ket': 'Ma Kết',
+  'bao-binh': 'Bảo Bình',
+  'song-ngu': 'Song Ngư',
 };
 
 // Mảng các cung hoàng đạo để navigation
 const ZODIAC_SIGNS = [
-  'Bạch Dương', 'Kim Ngưu', 'Song Tử', 'Cự Giải', 'Sư Tử', 'Xử Nữ',
-  'Thiên Bình', 'Bọ Cạp', 'Nhân Mã', 'Ma Kết', 'Bảo Bình', 'Song Ngư'
+  'bach-duong', 'kim-nguu', 'song-tu', 'cu-giai', 'su-tu', 'xu-nu',
+  'thien-binh', 'bo-cap', 'nhan-ma', 'ma-ket', 'bao-binh', 'song-ngu'
 ];
 
 export default function ZodiacDetailPage() {
   const params = useParams();
-  const sign = decodeURIComponent(params.sign as string);
+  const signSlug = params.sign as string;
+  const sign = ZODIAC_NAMES[signSlug] || '';
   
   const [zodiacData, setZodiacData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -72,6 +74,9 @@ export default function ZodiacDetailPage() {
 
     if (sign) {
       fetchZodiacData();
+    } else {
+      setError('Cung hoàng đạo không hợp lệ');
+      setLoading(false);
     }
   }, [sign]);
 
@@ -95,9 +100,8 @@ export default function ZodiacDetailPage() {
     );
   }
 
-  // Lấy hình ảnh và biểu tượng của cung hoàng đạo
-  const zodiacSymbol = ZODIAC_SYMBOLS[sign] || '';
-  const zodiacImagePath = ZODIAC_IMAGES[sign] || '';
+  // Lấy biểu tượng của cung hoàng đạo
+  const zodiacSymbol = ZODIAC_SYMBOLS[signSlug] || '';
 
   // Xử lý các trường dữ liệu để hiển thị
   const {
@@ -148,20 +152,8 @@ export default function ZodiacDetailPage() {
           {/* Header cho cung hoàng đạo */}
           <div className="bg-gradient-to-br from-blue-800/70 to-purple-800/70 rounded-lg p-6 backdrop-blur-md shadow-xl mb-8">
             <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="relative w-32 h-32 flex-shrink-0">
-                {zodiacImagePath ? (
-                  <Image
-                    src={zodiacImagePath}
-                    alt={`Cung ${title}`}
-                    width={128}
-                    height={128}
-                    className="object-contain"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-6xl">
-                    {zodiacSymbol}
-                  </div>
-                )}
+              <div className="relative w-32 h-32 flex-shrink-0 flex items-center justify-center text-6xl">
+                {zodiacSymbol}
               </div>
               
               <div className="flex-1 text-center md:text-left">
@@ -460,12 +452,12 @@ export default function ZodiacDetailPage() {
                   key={zodiacSign}
                   href={`/astrology/${encodeURIComponent(zodiacSign)}`}
                   className={`px-3 py-2 rounded-full text-sm font-medium transition ${
-                    zodiacSign === sign
+                    zodiacSign === signSlug
                       ? 'bg-blue-600 text-white'
                       : 'bg-white/10 hover:bg-white/20 text-white/80 hover:text-white'
                   }`}
                 >
-                  {ZODIAC_SYMBOLS[zodiacSign]} {zodiacSign}
+                  {ZODIAC_SYMBOLS[zodiacSign]} {ZODIAC_NAMES[zodiacSign]}
                 </Link>
               ))}
             </div>

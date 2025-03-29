@@ -3,23 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import Image from 'next/image';
-
-// Thêm một bản đồ các hình ảnh cho số chủ đạo
-const LIFE_PATH_IMAGES: Record<string, string> = {
-  '1': '/images/numerology/lifepath-1.png',
-  '2': '/images/numerology/lifepath-2.png',
-  '3': '/images/numerology/lifepath-3.png',
-  '4': '/images/numerology/lifepath-4.png',
-  '5': '/images/numerology/lifepath-5.png',
-  '6': '/images/numerology/lifepath-6.png',
-  '7': '/images/numerology/lifepath-7.png',
-  '8': '/images/numerology/lifepath-8.png',
-  '9': '/images/numerology/lifepath-9.png',
-  '11': '/images/numerology/lifepath-11.png',
-  '22': '/images/numerology/lifepath-22.png',
-  '33': '/images/numerology/lifepath-33.png',
-};
 
 // Mô tả ngắn gọn về các số chủ đạo
 const LIFE_PATH_DESCRIPTIONS: Record<string, string> = {
@@ -35,6 +18,22 @@ const LIFE_PATH_DESCRIPTIONS: Record<string, string> = {
   '11': 'Số 11 là số thầy, tượng trưng cho trực giác cao và sự khai sáng',
   '22': 'Số 22 là số thầy, tượng trưng cho sự xây dựng và hoàn thành',
   '33': 'Số 33 là số thầy, tượng trưng cho lòng vị tha và sự phụng sự',
+};
+
+// Màu sắc cho các số chủ đạo
+const LIFE_PATH_COLORS: Record<string, { from: string, to: string }> = {
+  '1': { from: 'from-red-500', to: 'to-orange-500' },
+  '2': { from: 'from-blue-400', to: 'to-indigo-500' },
+  '3': { from: 'from-yellow-400', to: 'to-orange-400' },
+  '4': { from: 'from-green-500', to: 'to-emerald-600' },
+  '5': { from: 'from-purple-500', to: 'to-violet-600' },
+  '6': { from: 'from-pink-400', to: 'to-rose-500' },
+  '7': { from: 'from-indigo-400', to: 'to-blue-600' },
+  '8': { from: 'from-amber-500', to: 'to-yellow-600' },
+  '9': { from: 'from-emerald-400', to: 'to-teal-600' },
+  '11': { from: 'from-violet-400', to: 'to-indigo-600' },
+  '22': { from: 'from-orange-400', to: 'to-amber-600' },
+  '33': { from: 'from-cyan-400', to: 'to-blue-600' },
 };
 
 interface LifePathCardProps {
@@ -55,8 +54,10 @@ const LifePathCard: React.FC<LifePathCardProps> = ({
   if (!lifePathNumber) {
     return null;
   }
-
-  const lifePathImagePath = LIFE_PATH_IMAGES[lifePathNumber] || '';
+  
+  // Lấy màu dựa trên số chủ đạo hoặc sử dụng màu mặc định
+  const colorFrom = LIFE_PATH_COLORS[lifePathNumber]?.from || 'from-pink-500';
+  const colorTo = LIFE_PATH_COLORS[lifePathNumber]?.to || 'to-orange-500';
   
   // Đảm bảo rằng chúng ta có dữ liệu hoặc cung cấp giá trị mặc định
   const title = userLifePath?.title || "";
@@ -76,20 +77,10 @@ const LifePathCard: React.FC<LifePathCardProps> = ({
         </div>
 
         <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
-          <div className="relative w-24 h-24 md:w-32 md:h-32 mx-auto md:mx-0 mb-4 md:mb-0">
-            {lifePathImagePath ? (
-              <Image
-                src={lifePathImagePath}
-                alt={`Số chủ đạo ${lifePathNumber}`}
-                width={128}
-                height={128}
-                className="object-contain"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-5xl font-bold bg-gradient-to-br from-pink-500 to-orange-500 rounded-full">
-                {lifePathNumber}
-              </div>
-            )}
+          <div className="relative w-24 h-24 md:w-28 md:h-28 flex items-center justify-center mx-auto md:mx-0 mb-4 md:mb-0">
+            <div className={`w-full h-full flex items-center justify-center text-4xl font-bold bg-gradient-to-br ${colorFrom} ${colorTo} rounded-full text-white shadow-lg`}>
+              {lifePathNumber}
+            </div>
           </div>
 
           <div className="flex-1 text-center md:text-left">

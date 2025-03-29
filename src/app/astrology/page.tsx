@@ -140,6 +140,38 @@ const zodiacDescriptions: { [key: string]: { element: string; planet: string; de
   }
 };
 
+// Dữ liệu cung hoàng đạo với slug không dấu
+const zodiacSlugs: { [key: string]: string } = {
+  'Bạch Dương': 'bach-duong',
+  'Kim Ngưu': 'kim-nguu',
+  'Song Tử': 'song-tu',
+  'Cự Giải': 'cu-giai',
+  'Sư Tử': 'su-tu',
+  'Xử Nữ': 'xu-nu',
+  'Thiên Bình': 'thien-binh',
+  'Bọ Cạp': 'bo-cap',
+  'Nhân Mã': 'nhan-ma',
+  'Ma Kết': 'ma-ket',
+  'Bảo Bình': 'bao-binh',
+  'Song Ngư': 'song-ngu',
+};
+
+// Biểu tượng Unicode cho các cung hoàng đạo
+const ZODIAC_SYMBOLS: Record<string, string> = {
+  'Bạch Dương': '♈',
+  'Kim Ngưu': '♉',
+  'Song Tử': '♊',
+  'Cự Giải': '♋',
+  'Sư Tử': '♌',
+  'Xử Nữ': '♍',
+  'Thiên Bình': '♎',
+  'Bọ Cạp': '♏',
+  'Nhân Mã': '♐',
+  'Ma Kết': '♑',
+  'Bảo Bình': '♒',
+  'Song Ngư': '♓',
+};
+
 export default function AstrologyPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -278,140 +310,121 @@ export default function AstrologyPage() {
             </div>
           ) : (
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 shadow-xl">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Kết quả tra cứu</h2>
-                {firstName && lastName && (
-                  <p className="text-xl">Cho {firstName} {lastName}</p>
-                )}
+              <h2 className="text-2xl font-bold mb-6 text-center">Kết quả</h2>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 shadow-lg mb-6">
+                <h3 className="text-xl font-bold mb-3 text-center">
+                  Cung hoàng đạo của bạn là:
+                </h3>
+                <div className="flex justify-center mb-4">
+                  <div className="h-24 w-24 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-5xl font-bold shadow-lg">
+                    {zodiacSign && ZODIAC_SYMBOLS[zodiacSign]}
+                  </div>
+                </div>
+                
+                <p className="text-2xl font-bold text-center mb-4">
+                  {zodiacSign}
+                </p>
+                
+                <p className="text-center">
+                  {firstName} {lastName}{firstName || lastName ? ', ' : ''}người sinh ngày {new Date(birthDate).toLocaleDateString('vi-VN')}
+                </p>
+                
+                <div className="mt-6 text-center">
+                  <Link
+                    href={`/astrology/${zodiacSlugs[zodiacSign]}`}
+                    className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full text-lg font-medium hover:from-pink-600 hover:to-purple-700 transition shadow-lg"
+                  >
+                    Xem chi tiết cung {zodiacSign}
+                  </Link>
+                </div>
               </div>
               
-              <div className="mb-8">
-                <div className="bg-gradient-to-br from-blue-900/80 to-purple-900/80 rounded-lg p-6 shadow-lg">
-                  <h3 className="text-2xl font-bold mb-4 text-center">Cung Hoàng Đạo của bạn</h3>
-                  
-                  {zodiacDescriptions[zodiacSign] && (
-                    <div>
-                      <div className="flex flex-col items-center mb-6">
-                        <div className="h-32 w-32 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center text-4xl font-bold shadow-lg mb-4">
-                          {zodiacSign}
-                        </div>
-                        <div className="text-center">
-                          <p className="text-lg">
-                            <span className="font-medium">Nguyên tố:</span> {zodiacDescriptions[zodiacSign].element}
-                          </p>
-                          <p className="text-lg">
-                            <span className="font-medium">Hành tinh cai quản:</span> {zodiacDescriptions[zodiacSign].planet}
-                          </p>
-                        </div>
+              {/* Thông tin ngắn gọn về cung hoàng đạo */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 shadow-lg">
+                <h3 className="text-xl font-bold mb-4">Tổng quan về cung {zodiacSign}</h3>
+                
+                {zodiacSign && (
+                  <>
+                    <p className="mb-4">{zodiacDescriptions[zodiacSign]?.description}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                      <div>
+                        <h4 className="font-medium mb-2">Nguyên tố:</h4>
+                        <p>{zodiacDescriptions[zodiacSign]?.element}</p>
                       </div>
-                      
-                      <div className="mb-6">
-                        <h4 className="text-xl font-semibold mb-2">Tổng quan</h4>
-                        <p>{zodiacDescriptions[zodiacSign].description}</p>
+                      <div>
+                        <h4 className="font-medium mb-2">Hành tinh cai quản:</h4>
+                        <p>{zodiacDescriptions[zodiacSign]?.planet}</p>
                       </div>
-                      
-                      <div className="mb-6">
-                        <h4 className="text-xl font-semibold mb-2">Điểm mạnh</h4>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-medium mb-2">Điểm mạnh:</h4>
                         <ul className="list-disc list-inside">
-                          {zodiacDescriptions[zodiacSign].strengths.map((strength, index) => (
+                          {zodiacDescriptions[zodiacSign]?.strengths.map((strength: string, index: number) => (
                             <li key={index}>{strength}</li>
                           ))}
                         </ul>
                       </div>
-                      
-                      <div className="mb-6">
-                        <h4 className="text-xl font-semibold mb-2">Điểm yếu</h4>
+                      <div>
+                        <h4 className="font-medium mb-2">Điểm yếu:</h4>
                         <ul className="list-disc list-inside">
-                          {zodiacDescriptions[zodiacSign].weaknesses.map((weakness, index) => (
+                          {zodiacDescriptions[zodiacSign]?.weaknesses.map((weakness: string, index: number) => (
                             <li key={index}>{weakness}</li>
                           ))}
                         </ul>
                       </div>
-                      
-                      <div>
-                        <h4 className="text-xl font-semibold mb-2">Tương hợp tốt với</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {zodiacDescriptions[zodiacSign].compatibility.map((sign, index) => (
-                            <span key={index} className="px-3 py-1 bg-pink-600/30 rounded-full">{sign}</span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="mt-8 text-center">
-                        <Link 
-                          href={`/astrology/${encodeURIComponent(zodiacSign)}`}
-                          className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full text-lg font-medium hover:from-pink-600 hover:to-purple-600 transition shadow-lg"
-                        >
-                          Xem chi tiết cung {zodiacSign}
-                        </Link>
-                      </div>
                     </div>
-                  )}
-                </div>
+                    
+                    <h4 className="font-medium mt-4 mb-2">Tương hợp với:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {zodiacDescriptions[zodiacSign]?.compatibility.map((compatSign: string, index: number) => (
+                        <Link
+                          key={index}
+                          href={`/astrology/${zodiacSlugs[compatSign]}`}
+                          className="px-3 py-1 bg-white/10 rounded-full text-sm hover:bg-white/20 transition"
+                        >
+                          {compatSign}
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
               
-              <div className="mt-8 text-center">
+              <div className="mt-6 text-center">
                 <button
                   onClick={() => setShowResults(false)}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-lg font-medium hover:from-blue-600 hover:to-purple-600 transition shadow-lg"
+                  className="px-6 py-3 bg-white/10 rounded-full text-lg font-medium hover:bg-white/20 transition"
                 >
-                  Tra cứu lại
+                  Quay lại tra cứu
                 </button>
               </div>
             </div>
           )}
-        </div>
-      </main>
-      
-      {/* Danh sách tất cả các cung hoàng đạo */}
-      <section className="container mx-auto px-4 py-8 mb-12">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8">Khám phá tất cả Cung Hoàng Đạo</h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {Object.keys(zodiacDescriptions).map((sign) => (
-              <Link href={`/astrology/${encodeURIComponent(sign)}`} key={sign}>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 shadow-lg transition hover:bg-white/20 hover:shadow-xl">
-                  <div className="flex flex-col items-center">
-                    <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500/50 to-purple-500/50 flex items-center justify-center text-2xl font-bold shadow-md mb-3">
-                      {sign === 'Bạch Dương' && '♈'}
-                      {sign === 'Kim Ngưu' && '♉'}
-                      {sign === 'Song Tử' && '♊'}
-                      {sign === 'Cự Giải' && '♋'}
-                      {sign === 'Sư Tử' && '♌'}
-                      {sign === 'Xử Nữ' && '♍'}
-                      {sign === 'Thiên Bình' && '♎'}
-                      {sign === 'Bọ Cạp' && '♏'}
-                      {sign === 'Nhân Mã' && '♐'}
-                      {sign === 'Ma Kết' && '♑'}
-                      {sign === 'Bảo Bình' && '♒'}
-                      {sign === 'Song Ngư' && '♓'}
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2 text-center">{sign}</h3>
-                    <p className="text-sm text-white/70 text-center">
-                      {sign === 'Bạch Dương' && '21/3 - 19/4'}
-                      {sign === 'Kim Ngưu' && '20/4 - 20/5'}
-                      {sign === 'Song Tử' && '21/5 - 20/6'}
-                      {sign === 'Cự Giải' && '21/6 - 22/7'}
-                      {sign === 'Sư Tử' && '23/7 - 22/8'}
-                      {sign === 'Xử Nữ' && '23/8 - 22/9'}
-                      {sign === 'Thiên Bình' && '23/9 - 22/10'}
-                      {sign === 'Bọ Cạp' && '23/10 - 21/11'}
-                      {sign === 'Nhân Mã' && '22/11 - 21/12'}
-                      {sign === 'Ma Kết' && '22/12 - 19/1'}
-                      {sign === 'Bảo Bình' && '20/1 - 18/2'}
-                      {sign === 'Song Ngư' && '19/2 - 20/3'}
-                    </p>
-                    <p className="text-sm text-center mt-2">
-                      Nguyên tố: {zodiacDescriptions[sign].element}
-                    </p>
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-center mb-6">Danh sách cung hoàng đạo</h2>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {Object.keys(zodiacDescriptions).map((sign) => (
+                <Link
+                  key={sign}
+                  href={`/astrology/${zodiacSlugs[sign]}`}
+                  className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/20 transition shadow-lg text-center"
+                >
+                  <div className="h-16 w-16 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-3xl font-bold shadow-lg mx-auto mb-3">
+                    {ZODIAC_SYMBOLS[sign]}
                   </div>
-                </div>
-              </Link>
-            ))}
+                  <h3 className="text-lg font-bold">{sign}</h3>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+      </main>
       
       {/* Footer */}
       <footer className="bg-black/40 text-white py-6 mt-12">
