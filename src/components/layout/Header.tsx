@@ -4,26 +4,19 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useWebsiteSettings } from '@/contexts/WebsiteSettingsContext';
-import { isAuthenticated, isAdmin } from '@/lib/auth';
-import { deleteCookie } from '@/lib/cookies';
+import { useAuth } from '@/contexts/AuthContext';
+import { deleteCookie } from 'cookies-next';
 
 export default function Header() {
-  const { settings, loading } = useWebsiteSettings();
+  const { settings } = useWebsiteSettings();
+  const { user, isUserAdmin, loggedIn } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const authenticated = await isAuthenticated();
-      setLoggedIn(authenticated);
-      
-      if (authenticated) {
-        const admin = await isAdmin();
-        setIsUserAdmin(admin);
-      }
+      // Chức năng kiểm tra xác thực đã được xử lý trong AuthContext
     };
-    
+
     checkAuth();
   }, []);
 
@@ -32,11 +25,7 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    // Xóa token từ localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('userData');
-    
-    // Xóa cookie xác thực
+    // Hàm logout sẽ gọi API và xóa JWT token
     const cookieName = process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'token';
     deleteCookie(cookieName);
     
@@ -49,19 +38,14 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-3">
-            {settings?.logo ? (
-              <Image 
-                src={settings.logo} 
-                alt={settings?.name || 'Thần Số Học'} 
-                width={40} 
-                height={40} 
-                className="rounded-full" 
-              />
-            ) : (
-              <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-xl font-bold">
-                T
-              </div>
-            )}
+            {/* Logo mới từ Amazon S3 */}
+            <Image 
+              src="https://mystic-upload.s3.us-east-1.amazonaws.com/uploads/logo.png" 
+              alt={settings?.name || 'Thần Số Học'} 
+              width={40} 
+              height={40} 
+              className="rounded-full" 
+            />
             <span className="text-xl font-bold">{settings?.name || 'Thần Số Học'}</span>
           </Link>
           
