@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faTachometerAlt, 
@@ -15,6 +15,9 @@ import {
   faChevronDown,
   faChevronUp
 } from '@fortawesome/free-solid-svg-icons';
+import { isAuthenticated, isAdmin } from '@/lib/auth';
+import { userApi } from '@/lib/api';
+import { removeCookie } from '@/lib/cookies';
 
 export default function AdminLayout({
   children,
@@ -23,7 +26,61 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState('Admin');
+  const [userEmail, setUserEmail] = useState('');
+  const [initialized, setInitialized] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Kiểm tra xác thực và quyền admin
+        const authenticated = await isAuthenticated();
+        if (!authenticated) {
+          router.push('/login');
+          return;
+        }
+        
+        const adminAccess = await isAdmin();
+        if (!adminAccess) {
+          router.push('/');
+          return;
+        }
+        
+        // Lấy thông tin người dùng từ localStorage
+        const userDataStr = localStorage.getItem('userData');
+        if (userDataStr) {
+          try {
+            const userData = JSON.parse(userDataStr);
+            if (userData.name) {
+              setUserName(userData.name);
+            } else if (userData.firstName && userData.lastName) {
+              setUserName(`${userData.firstName} ${userData.lastName}`);
+            } else if (userData.firstName) {
+              setUserName(userData.firstName);
+            }
+            
+            if (userData.email) {
+              setUserEmail(userData.email);
+            }
+          } catch (e) {
+            console.error('Lỗi parse userData:', e);
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi kiểm tra xác thực admin:', error);
+      } finally {
+        setLoading(false);
+        setInitialized(true);
+      }
+    };
+    
+    if (!initialized) {
+      checkAuth();
+    }
+  }, [router, initialized]);
   
   const isActive = (path: string) => {
     return pathname === path || pathname?.startsWith(path + '/');
@@ -34,11 +91,33 @@ export default function AdminLayout({
   };
 
   const handleLogout = () => {
-    // Xóa token từ localStorage
-    localStorage.removeItem('token');
-    // Chuyển hướng về trang đăng nhập
-    window.location.href = '/admin';
+    try {
+      // Sử dụng hàm logout từ userApi
+      userApi.logout();
+      
+      // Đảm bảo xóa token khỏi cookie với tên cookie đúng
+      const cookieName = process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'token';
+      removeCookie(cookieName);
+      
+      // Sử dụng router để chuyển hướng
+      router.push('/login');
+    } catch (error) {
+      console.error('Lỗi khi đăng xuất:', error);
+      // Fallback nếu có lỗi
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
+      window.location.href = '/login';
+    }
   };
+
+  // Hiển thị loading khi đang kiểm tra xác thực
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-12 h-12 border-4 border-t-indigo-500 border-r-transparent border-b-indigo-500 border-l-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -120,7 +199,7 @@ export default function AdminLayout({
                 </div>
                 {sidebarOpen && (
                   <>
-                    <span className="text-gray-700">Admin</span>
+                    <span className="text-gray-700">{userName}</span>
                     <FontAwesomeIcon 
                       icon={userMenuOpen ? faChevronUp : faChevronDown} 
                       className="text-gray-500 text-xs"
@@ -131,6 +210,11 @@ export default function AdminLayout({
               
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                  {userEmail && (
+                    <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
+                      {userEmail}
+                    </div>
+                  )}
                   <Link href="/admin/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Thông tin cá nhân
                   </Link>

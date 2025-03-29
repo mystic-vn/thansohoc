@@ -2,13 +2,72 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   NumerologyBasicData,
   NumerologyCompatibility,
   NumerologyTimeAnalysis 
 } from '@/lib/numerology-db';
+import { isAuthenticated, isAdmin } from '@/lib/auth';
+import { Alert } from '@/components/ui/alert';
 
 export default function AdminPage() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        setLoading(true);
+        const authenticated = await isAuthenticated();
+        
+        if (!authenticated) {
+          router.push('/login');
+          return;
+        }
+        
+        const adminAccess = await isAdmin();
+        if (!adminAccess) {
+          setError('Bạn không có quyền truy cập trang quản trị');
+          return;
+        }
+        
+        setError(null);
+      } catch (err) {
+        console.error("Lỗi kiểm tra xác thực:", err);
+        setError('Có lỗi xảy ra khi xác thực. Vui lòng thử lại sau.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkAuth();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-12 h-12 border-4 border-t-indigo-500 border-r-transparent border-b-indigo-500 border-l-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Alert className="bg-red-100 border-red-400 text-red-700 p-4 rounded mb-4">
+          {error}
+        </Alert>
+        <div className="text-center mt-4">
+          <Link href="/" className="text-indigo-600 hover:text-indigo-800">
+            Quay về trang chủ
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8">Quản lý dữ liệu Thần Số Học</h1>

@@ -40,10 +40,34 @@ export async function isAdmin(): Promise<boolean> {
       return false;
     }
     
-    // Tạm thời trả về true để có thể truy cập trang migration
-    // CHÚ Ý: Trong môi trường sản phẩm thực tế, KHÔNG NÊN làm như vậy!
-    // Thay vào đó nên gọi API để kiểm tra quyền admin
-    return true;
+    // Kiểm tra quyền admin từ JWT token hoặc dữ liệu người dùng
+    const userDataStr = localStorage.getItem('userData');
+    if (userDataStr) {
+      try {
+        const userData = JSON.parse(userDataStr);
+        // Kiểm tra nếu user có role là admin hoặc isAdmin = true
+        if (userData.role === 'Admin' || userData.role === 'admin' || userData.isAdmin === true) {
+          return true;
+        }
+      } catch (e) {
+        console.error('Lỗi parse userData:', e);
+      }
+    }
+    
+    // Nếu không tìm thấy thông tin về quyền admin trong localStorage
+    // thì có thể gọi API để kiểm tra
+    // Ví dụ: 
+    // const response = await fetch('/api/auth/check-admin', {
+    //   headers: {
+    //     'Authorization': `Bearer ${token}` 
+    //   }
+    // });
+    // const data = await response.json();
+    // return data.isAdmin;
+    
+    // Nếu không tìm thấy quyền admin trong localStorage hoặc từ API, trả về false
+    console.warn('⚠️ Không tìm thấy quyền admin cho người dùng này');
+    return false;
   } catch (error) {
     console.error('Lỗi khi kiểm tra quyền admin:', error);
     return false;
