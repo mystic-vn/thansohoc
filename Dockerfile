@@ -23,7 +23,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Biến môi trường
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build ứng dụng
 RUN npm run build
@@ -32,8 +32,8 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Tạo người dùng non-root
 RUN addgroup --system --gid 1001 nodejs
@@ -56,7 +56,7 @@ USER nextjs
 # Port mặc định
 EXPOSE 3000
 
-ENV PORT 3000
+ENV PORT=3000
 
 # Chạy ứng dụng
 CMD ["node", "server.js"] 
