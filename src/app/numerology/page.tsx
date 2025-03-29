@@ -204,19 +204,6 @@ export default function NumerologyPage() {
     // Hiển thị thông báo cập nhật ngày sinh
     return (
       <div className="min-h-screen bg-gradient-to-b from-indigo-900 via-purple-800 to-pink-800 text-white">
-        <header className="bg-black/30 backdrop-blur-md">
-          <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="text-xl font-bold">Thần Số Học</div>
-            </Link>
-            <nav>
-              <Link href="/" className="px-4 py-2 rounded hover:bg-indigo-600/30 transition">
-                Trang chủ
-              </Link>
-            </nav>
-          </div>
-        </header>
-        
         <main className="container mx-auto px-4 py-20">
           <div className="max-w-2xl mx-auto text-center">
             <h1 className="text-4xl font-bold mb-6">Chưa có thông tin ngày sinh</h1>
@@ -237,20 +224,6 @@ export default function NumerologyPage() {
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-900 via-purple-800 to-pink-800 text-white">
-      {/* Header */}
-      <header className="bg-black/30 backdrop-blur-md">
-        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="text-xl font-bold">Thần Số Học</div>
-          </Link>
-          <nav>
-            <Link href="/" className="px-4 py-2 rounded hover:bg-indigo-600/30 transition">
-              Trang chủ
-            </Link>
-          </nav>
-        </div>
-      </header>
-      
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
@@ -568,13 +541,6 @@ export default function NumerologyPage() {
           </div>
         </div>
       </main>
-      
-      {/* Footer */}
-      <footer className="bg-black/40 text-white py-6 mt-12">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; {new Date().getFullYear()} Thần Số Học. Tất cả các quyền được bảo lưu.</p>
-        </div>
-      </footer>
     </div>
   );
 } 
