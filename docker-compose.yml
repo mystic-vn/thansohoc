@@ -12,7 +12,7 @@ services:
         - REDIS_URL=${REDIS_URL}
         - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
         - NEXTAUTH_URL=${NEXTAUTH_URL}
-    container_name: thansohoc-container
+    container_name: thansohoc-frontend
     restart: always
     ports:
       - "3000:3000"
@@ -26,6 +26,21 @@ services:
     networks:
       - thansohocnet
 
+  backend:
+    build:
+      context: ./backend
+    container_name: thansohoc-backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DB=${MONGODB_DB}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_URL=${REDIS_URL}
+    networks:
+      - thansohocnet
+
   redis:
     image: redis:alpine
     container_name: thansohoc-redis
@@ -34,6 +49,8 @@ services:
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
+    networks:
+      - thansohocnet
 
 volumes:
   redis-data:

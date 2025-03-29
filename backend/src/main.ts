@@ -6,9 +6,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   
-  // Thêm CORS
+  // Thêm CORS với nhiều origin
   app.enableCors({
-    origin: 'http://localhost:3000', // URL của frontend
+    origin: ['http://localhost:3000', 'https://thansohoc.mystic.vn'], // Chấp nhận cả local và production
     credentials: true,
   });
   
