@@ -53,8 +53,8 @@ export default function Header() {
             <Image 
               src="https://mystic-upload.s3.us-east-1.amazonaws.com/uploads/logo.png" 
               alt={settings?.name || 'Thần Số Học'} 
-              width={40} 
-              height={40} 
+              width={32} 
+              height={32} 
               className="rounded-full" 
             />
             <span className="text-xl font-bold">{settings?.name || 'Thần Số Học'}</span>

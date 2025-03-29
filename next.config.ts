@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    domains: ['mystic-upload.s3.us-east-1.amazonaws.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'mystic-upload.s3.us-east-1.amazonaws.com',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

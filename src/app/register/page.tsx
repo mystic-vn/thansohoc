@@ -1,14 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { userApi, CreateUserRequest } from '@/lib/api';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<CreateUserRequest>({
     firstName: '',
     lastName: '',
@@ -16,6 +14,8 @@ export default function RegisterPage() {
     password: '',
     birthDate: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Tính toán ngày tối đa cho phép (10 năm trước từ ngày hiện tại)
   const calculateMaxDate = (): string => {
@@ -26,7 +26,17 @@ export default function RegisterPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Xử lý đặc biệt cho trường ngày sinh
+    if (name === 'birthDate') {
+      // Lưu giá trị gốc để hiển thị trong input
+      setFormData(prev => ({ ...prev, [name]: value }));
+      
+      // Kiểm tra định dạng ngày trên iOS đã được xử lý trong normalizeBirthDate
+      console.log('Ngày sinh được nhập:', value);
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,11 +44,17 @@ export default function RegisterPage() {
     
     // Kiểm tra ngày sinh hợp lệ
     if (formData.birthDate) {
-      const birthDate = new Date(formData.birthDate);
-      const maxDate = new Date(calculateMaxDate());
-      
-      if (birthDate > maxDate) {
-        setError('Bạn phải đủ 10 tuổi để đăng ký tài khoản này.');
+      try {
+        const birthDate = new Date(formData.birthDate);
+        const maxDate = new Date(calculateMaxDate());
+        
+        if (birthDate > maxDate) {
+          setError('Bạn phải đủ 10 tuổi để đăng ký tài khoản này.');
+          return;
+        }
+      } catch (error) {
+        console.error('Lỗi khi xử lý ngày sinh:', error);
+        setError('Định dạng ngày sinh không hợp lệ. Vui lòng kiểm tra lại.');
         return;
       }
     }
@@ -157,12 +173,14 @@ export default function RegisterPage() {
                 id="birthDate"
                 name="birthDate"
                 type="date"
+                pattern="\d{4}-\d{2}-\d{2}"
                 required
                 max={calculateMaxDate()}
                 className="appearance-none rounded-lg relative block w-full px-4 py-3 bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:z-10 sm:text-sm transition"
                 value={formData.birthDate}
                 onChange={handleChange}
               />
+              <p className="mt-1 text-xs text-white/60">Nhập định dạng YYYY-MM-DD (ví dụ: 1997-02-09)</p>
             </div>
           </div>
 
