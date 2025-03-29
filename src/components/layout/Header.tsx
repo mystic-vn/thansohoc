@@ -4,19 +4,26 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useWebsiteSettings } from '@/contexts/WebsiteSettingsContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { deleteCookie } from 'cookies-next';
+import { isAuthenticated, isAdmin } from '@/lib/auth';
+import { deleteCookie } from '@/lib/cookies';
 
 export default function Header() {
-  const { settings } = useWebsiteSettings();
-  const { user, isUserAdmin, loggedIn } = useAuth();
+  const { settings, loading } = useWebsiteSettings();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
-      // Chức năng kiểm tra xác thực đã được xử lý trong AuthContext
+      const authenticated = await isAuthenticated();
+      setLoggedIn(authenticated);
+      
+      if (authenticated) {
+        const admin = await isAdmin();
+        setIsUserAdmin(admin);
+      }
     };
-
+    
     checkAuth();
   }, []);
 
@@ -25,7 +32,11 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    // Hàm logout sẽ gọi API và xóa JWT token
+    // Xóa token từ localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    
+    // Xóa cookie xác thực
     const cookieName = process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'token';
     deleteCookie(cookieName);
     
