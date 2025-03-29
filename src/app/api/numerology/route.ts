@@ -9,6 +9,7 @@ import {
   getAllLifePathData,
   getAllZodiacData
 } from '@/lib/numerology-db';
+import { withCache } from '@/lib/cache-utils';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -23,33 +24,62 @@ export async function GET(request: Request) {
 
     // Lấy tất cả dữ liệu theo loại
     if (!code) {
-      let data;
-      
-      // Sử dụng API mới nếu có
-      if (type === 'life-path') {
-        data = await getAllLifePathData();
-      } else if (type === 'zodiac') {
-        data = await getAllZodiacData();
-      } else {
-        // Sử dụng API cũ cho các loại khác
-        data = await getAllBasicDataByType(type);
-      }
+      // Khai báo các tham số cho cache
+      const cacheParams = { 
+        type, 
+        action: 'get-all'
+      };
+
+      // Sử dụng withCache để cache dữ liệu
+      const data = await withCache(
+        async () => {
+          console.log(`Đang lấy tất cả dữ liệu ${type} từ database...`);
+          
+          // Sử dụng API mới nếu có
+          if (type === 'life-path') {
+            return await getAllLifePathData();
+          } else if (type === 'zodiac') {
+            return await getAllZodiacData();
+          } else {
+            // Sử dụng API cũ cho các loại khác
+            return await getAllBasicDataByType(type);
+          }
+        },
+        'numerology-api',
+        cacheParams,
+        3600 // Cache 1 giờ
+      );
       
       return NextResponse.json(data);
     }
 
     // Lấy dữ liệu cụ thể với các trường được chỉ định
-    let data;
-    
-    // Sử dụng API mới nếu có
-    if (type === 'life-path') {
-      data = await getLifePathData(code, fields);
-    } else if (type === 'zodiac') {
-      data = await getZodiacData(code, fields);
-    } else {
-      // Sử dụng API cũ cho các loại khác
-      data = await getBasicNumerologyData(type, code);
-    }
+    // Khai báo các tham số cho cache
+    const cacheParams = { 
+      type, 
+      code,
+      fields: fields ? fields.sort().join(',') : 'all'
+    };
+
+    // Sử dụng withCache để cache dữ liệu
+    const data = await withCache(
+      async () => {
+        console.log(`Đang lấy dữ liệu ${type}:${code} từ database...`);
+        
+        // Sử dụng API mới nếu có
+        if (type === 'life-path') {
+          return await getLifePathData(code, fields);
+        } else if (type === 'zodiac') {
+          return await getZodiacData(code, fields);
+        } else {
+          // Sử dụng API cũ cho các loại khác
+          return await getBasicNumerologyData(type, code);
+        }
+      },
+      'numerology-api',
+      cacheParams,
+      3600 // Cache 1 giờ
+    );
     
     if (!data) {
       return NextResponse.json({ error: 'Không tìm thấy dữ liệu' }, { status: 404 });

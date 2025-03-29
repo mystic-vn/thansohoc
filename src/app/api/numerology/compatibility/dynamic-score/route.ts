@@ -1,10 +1,40 @@
 import { NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
 import OpenAI from 'openai';
+import { connectToDatabase } from '@/lib/mongodb';
+import { withCache } from '@/lib/cache-utils';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// Hàm giả lập tính toán điểm tương hợp động dựa trên các yếu tố
+function calculateDynamicScore(
+  lifePathNumber: string,
+  zodiacSign: string,
+  monthNumber: number,
+  dayNumber: number
+): number {
+  // Giả lập một số tính toán đơn giản
+  const lifePathValue = parseInt(lifePathNumber, 10) || 5;
+  const dayFactor = (dayNumber % 9) || 1;
+  const monthFactor = (monthNumber % 5) || 1;
+  
+  // Thêm một yếu tố ngẫu nhiên nhỏ để tạo cảm giác động
+  const randomFactor = Math.random() * 0.5;
+  
+  // Giả lập điểm cơ bản từ 60-85
+  let baseScore = 70 + (lifePathValue * 2) - (monthFactor * 3) + (dayFactor * 2);
+  
+  // Đảm bảo điểm nằm trong khoảng hợp lý
+  baseScore = Math.max(65, Math.min(85, baseScore));
+  
+  // Thêm yếu tố ngẫu nhiên nhỏ
+  const finalScore = baseScore + randomFactor;
+  
+  // Làm tròn đến 1 chữ số thập phân
+  return Math.round(finalScore * 10) / 10;
+}
 
 export async function POST(req: Request) {
   try {
@@ -130,5 +160,78 @@ Một số ví dụ về điểm số hợp lý:
       { error: 'Server Error', message: error.message || 'Đã xảy ra lỗi khi xử lý yêu cầu' },
       { status: 500 }
     );
+  }
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const lifePathNumber = searchParams.get('lifePathNumber');
+  const zodiacSign = searchParams.get('zodiacSign');
+  const month = parseInt(searchParams.get('month') || '0', 10);
+  const day = parseInt(searchParams.get('day') || '0', 10);
+
+  try {
+    if (!lifePathNumber || !zodiacSign) {
+      return NextResponse.json(
+        { error: 'Thiếu tham số cần thiết (lifePathNumber hoặc zodiacSign)' },
+        { status: 400 }
+      );
+    }
+    
+    // Cấu hình cache
+    const cacheParams = {
+      lifePathNumber,
+      zodiacSign,
+      month,
+      day
+    };
+    
+    // Sử dụng cache
+    const result = await withCache(
+      async () => {
+        // Thử tìm trong database trước
+        const { db } = await connectToDatabase();
+        
+        console.log('Dynamic Score API: Tìm kiếm điểm động trong database...');
+        const data = await db.collection('life_path_zodiac_combinations').findOne({
+          lifePathNumber,
+          zodiacSign
+        });
+        
+        // Nếu có dữ liệu và có điểm tương hợp, trả về kết quả từ database
+        if (data && data.compatibilityScore !== undefined) {
+          console.log('Dynamic Score API: Tìm thấy điểm tương hợp trong database:', data.compatibilityScore);
+          
+          // Thêm một biến thể nhỏ để tạo cảm giác động
+          const randomVariation = (Math.random() * 2 - 1) * 0.5;  // -0.5 to +0.5
+          let dynamicScore = data.compatibilityScore + randomVariation;
+          
+          // Đảm bảo điểm nằm trong khoảng hợp lý
+          dynamicScore = Math.max(0, Math.min(100, dynamicScore));
+          
+          return {
+            score: Math.round(dynamicScore * 10) / 10,
+            source: 'database'
+          };
+        }
+        
+        // Nếu không có trong database, tính toán động
+        console.log('Dynamic Score API: Không tìm thấy trong database, tính toán động...');
+        const calculatedScore = calculateDynamicScore(lifePathNumber, zodiacSign, month, day);
+        
+        return {
+          score: calculatedScore,
+          source: 'calculated'
+        };
+      },
+      'dynamic-score-api',
+      cacheParams,
+      900 // Cache 15 phút để vẫn giữ tính "động"
+    );
+    
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('Lỗi khi tính toán điểm tương hợp động:', error);
+    return NextResponse.json({ error: 'Lỗi server' }, { status: 500 });
   }
 } 
