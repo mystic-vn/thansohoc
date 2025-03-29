@@ -51,39 +51,60 @@ export default function ZodiacDetailPage() {
   const [zodiacData, setZodiacData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
+
+  const fetchZodiacData = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // Thay đổi URL API để sử dụng slug thay vì tên cung có dấu
+      const response = await fetch(`/api/numerology?type=zodiac&code=${encodeURIComponent(sign)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Không thể tải dữ liệu cung hoàng đạo: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      if (!data.data) {
+        throw new Error('Dữ liệu cung hoàng đạo không hợp lệ');
+      }
+      
+      setZodiacData(data.data);
+    } catch (err) {
+      console.error('Lỗi khi tải dữ liệu cung hoàng đạo:', err);
+      setError(err instanceof Error ? err.message : 'Không thể tải dữ liệu cung hoàng đạo');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchZodiacData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/numerology?type=zodiac&code=${encodeURIComponent(sign)}`);
-        
-        if (!response.ok) {
-          throw new Error('Không thể tải dữ liệu cung hoàng đạo');
-        }
-        
-        const data = await response.json();
-        setZodiacData(data.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Lỗi khi tải dữ liệu cung hoàng đạo:', err);
-        setError('Không thể tải dữ liệu cung hoàng đạo');
-        setLoading(false);
-      }
-    };
-
     if (sign) {
       fetchZodiacData();
     } else {
       setError('Cung hoàng đạo không hợp lệ');
       setLoading(false);
     }
-  }, [sign]);
+  }, [sign, retryCount]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-900 via-purple-800 to-purple-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <p className="text-white">Đang tải thông tin cung hoàng đạo...</p>
+        </div>
       </div>
     );
   }
@@ -93,9 +114,16 @@ export default function ZodiacDetailPage() {
       <div className="min-h-screen bg-gradient-to-b from-blue-900 via-purple-800 to-purple-900 flex flex-col items-center justify-center p-4">
         <h1 className="text-3xl font-bold text-white mb-4">Đã xảy ra lỗi</h1>
         <p className="text-white mb-8">{error || 'Không tìm thấy dữ liệu cung hoàng đạo'}</p>
-        <Link href="/astrology" className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
-          Quay lại danh sách cung hoàng đạo
-        </Link>
+        <div className="flex space-x-4">
+          <button 
+            onClick={handleRetry}
+            className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
+            Thử lại
+          </button>
+          <Link href="/astrology" className="px-6 py-3 bg-gray-600 text-white rounded-full hover:bg-gray-700 transition">
+            Quay lại danh sách
+          </Link>
+        </div>
       </div>
     );
   }

@@ -6,6 +6,16 @@ import Link from 'next/link';
 import { getCookie } from '@/lib/cookies';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
+// Hàm định dạng ngày tháng an toàn cho iOS
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
 // Xác định cung hoàng đạo từ ngày sinh
 const getZodiacSign = (birthDate: string): string => {
   if (!birthDate) return '';
@@ -315,7 +325,7 @@ export default function AstrologyPage() {
                 </p>
                 
                 <p className="text-center">
-                  {firstName} {lastName}{firstName || lastName ? ', ' : ''}người sinh ngày {new Date(birthDate).toLocaleDateString('vi-VN')}
+                  {firstName} {lastName}{firstName || lastName ? ', ' : ''}người sinh ngày {formatDate(birthDate)}
                 </p>
                 
                 <div className="mt-6 text-center">

@@ -8,6 +8,16 @@ import { userApi } from '@/lib/api';
 import { calculateLifePathNumber, normalizeBirthDate } from '@/lib/numerology';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
+// Hàm định dạng ngày tháng an toàn cho iOS
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
 // Hàm tính toán thần số học đơn giản
 const calculateSimpleNumber = () => {
   return Math.floor(Math.random() * 9) + 1 + '';
@@ -231,7 +241,7 @@ export default function NumerologyPage() {
           
           <div className="text-center mb-8">
             <p className="text-xl">
-              {user.firstName} {user.lastName} - Ngày sinh: {new Date(user.birthDate).toLocaleDateString('vi-VN')}
+              {user.firstName} {user.lastName} - Ngày sinh: {formatDate(user.birthDate)}
             </p>
           </div>
           
