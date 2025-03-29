@@ -502,11 +502,11 @@ export default function NumerologyPage() {
               <h3 className="text-xl font-bold mb-4 text-center">Số Ngày Sinh</h3>
               <div className="flex justify-center mb-4">
                 <div className="h-20 w-20 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center text-4xl font-bold shadow-lg">
-                  {birthDayNumber}
+                  {birthDayNumber || '?'}
                 </div>
               </div>
               <p className="text-center">
-                Cho biết tài năng bẩm sinh và khả năng đặc biệt của bạn.
+                Đang cập nhật. Vui lòng quay lại sau.
               </p>
             </div>
           </div>

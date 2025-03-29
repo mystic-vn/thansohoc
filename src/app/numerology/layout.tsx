@@ -1,7 +1,11 @@
+'use client';
+
+import MainLayout from '../MainLayout';
+
 export default function NumerologyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <MainLayout>{children}</MainLayout>;
 } 
