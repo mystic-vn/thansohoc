@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCookie } from '@/lib/cookies';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 // Xác định cung hoàng đạo từ ngày sinh
 const getZodiacSign = (birthDate: string): string => {
@@ -214,9 +215,10 @@ export default function AstrologyPage() {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
+      <LoadingSpinner 
+        message="Đang tải thông tin chiêm tinh học của bạn..." 
+        showTips={true}
+      />
     );
   }
   

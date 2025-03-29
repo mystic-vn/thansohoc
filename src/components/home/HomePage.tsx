@@ -223,7 +223,12 @@ const HomePage: React.FC = () => {
   }, [lifePathNumber, zodiacSign, isAuthenticated]);
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (
+      <LoadingSpinner 
+        message="Đang tải dữ liệu của bạn..." 
+        showTips={true}
+      />
+    );
   }
 
   return (

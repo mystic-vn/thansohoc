@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCookie } from '@/lib/cookies';
 import { userApi } from '@/lib/api';
 import { calculateLifePathNumber, normalizeBirthDate } from '@/lib/numerology';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 // Hàm tính toán thần số học đơn giản
 const calculateSimpleNumber = () => {
@@ -188,9 +189,10 @@ export default function NumerologyPage() {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
+      <LoadingSpinner 
+        message="Đang tải thông tin thần số học của bạn..." 
+        showTips={true}
+      />
     );
   }
   
