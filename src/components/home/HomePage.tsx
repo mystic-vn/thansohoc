@@ -7,7 +7,6 @@ import { getCookie } from '@/lib/cookies';
 import { userApi } from '@/lib/api';
 import { calculateLifePathNumber, getZodiacSign, getCompatibility, lifePathDescriptions, zodiacDescriptions, normalizeBirthDate } from '@/lib/numerology';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import Header from '@/components/layout/Header';
 import LifePathCard from './LifePathCard';
 import ZodiacCard from './ZodiacCard';
 import CompatibilityCard from './CompatibilityCard';
@@ -229,8 +228,6 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-900 via-purple-800 to-pink-800 text-white">
-      <Header isAuthenticated={isAuthenticated} userName={userName} />
-
       {isAuthenticated ? (
         <>
           {/* Hiển thị thông tin cá nhân cho người dùng đã đăng nhập */}
@@ -252,7 +249,7 @@ const HomePage: React.FC = () => {
               </div>
               
               {lifePathNumber && zodiacSign ? (
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 border border-white/20 shadow-2xl mb-12">
+                <div className="bg-black/30 backdrop-blur-md rounded-xl p-8 border border-white/10 shadow-2xl mb-12">
                   <div className="flex flex-col lg:flex-row gap-8">
                     {/* Số chủ đạo */}
                     <LifePathCard 
@@ -274,11 +271,11 @@ const HomePage: React.FC = () => {
                     compatibilityData={compatibilityData}
                     lifePathNumber={lifePathNumber}
                     zodiacSign={zodiacSign}
-                    getCompatibility={getCompatibility}
+                    getCompatibility={() => getCompatibility(lifePathNumber, zodiacSign)}
                   />
                 </div>
               ) : (
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 border border-white/20 shadow-2xl">
+                <div className="bg-black/30 backdrop-blur-md rounded-xl p-8 border border-white/10 shadow-2xl">
                   <p className="text-center text-white/80 mb-6">
                     Bạn chưa cập nhật ngày sinh. Hãy cập nhật để khám phá thông tin thần số học cá nhân.
                   </p>
@@ -319,39 +316,6 @@ const HomePage: React.FC = () => {
           </div>
         </section>
       )}
-
-      {/* Footer */}
-      <footer className="bg-black/40 text-white py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-xl font-semibold mb-4">Thần Số Học</h3>
-              <p className="text-white/60">
-                Ứng dụng tra cứu thần số học và chiêm tinh, giúp bạn khám phá tiềm năng và con đường số mệnh.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Liên kết</h3>
-              <ul className="space-y-2 text-white/60">
-                <li><Link href="/numerology" className="hover:text-white transition">Thần Số Học</Link></li>
-                <li><Link href="/astrology" className="hover:text-white transition">Cung Hoàng Đạo</Link></li>
-                <li><Link href="/profile" className="hover:text-white transition">Hồ sơ cá nhân</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Liên hệ</h3>
-              <p className="text-white/60 mb-2">Email: info@thansohoc.com</p>
-              <p className="text-white/60">Điện thoại: +84 123 456 789</p>
-            </div>
-          </div>
-          
-          <div className="border-t border-white/10 mt-8 pt-8 text-center text-white/60">
-            <p>&copy; {new Date().getFullYear()} Thần Số Học. Tất cả các quyền được bảo lưu.</p>
-          </div>
-        </div>
-      </footer>
 
       {/* Modal chi tiết số chủ đạo */}
       {showLifePathDetails && (

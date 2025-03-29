@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useWebsiteSettings } from '@/contexts/WebsiteSettingsContext';
 import { isAuthenticated, isAdmin } from '@/lib/auth';
+import { deleteCookie } from '@/lib/cookies';
 
 export default function Header() {
   const { settings, loading } = useWebsiteSettings();
@@ -30,8 +31,21 @@ export default function Header() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleLogout = () => {
+    // Xóa token từ localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    
+    // Xóa cookie xác thực
+    const cookieName = process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'token';
+    deleteCookie(cookieName);
+    
+    // Chuyển hướng về trang chủ
+    window.location.href = '/';
+  };
+
   return (
-    <header className="bg-black/30 backdrop-blur-md text-white py-4">
+    <header className="bg-gradient-to-r from-indigo-900 via-purple-800 to-pink-800 text-white py-4 shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-3">
@@ -53,38 +67,37 @@ export default function Header() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-6">
-            <Link href="/" className="hover:text-purple-400 transition">Trang chủ</Link>
-            <Link href="/numerology" className="hover:text-purple-400 transition">Thần Số Học</Link>
-            <Link href="/astrology" className="hover:text-purple-400 transition">Chiêm Tinh</Link>
+            <Link href="/" className="hover:text-pink-300 transition">Trang chủ</Link>
+            <Link href="/numerology" className="hover:text-pink-300 transition">Thần Số Học</Link>
+            <Link href="/astrology" className="hover:text-pink-300 transition">Chiêm Tinh</Link>
             
             {loggedIn ? (
               <div className="relative group">
-                <button className="hover:text-purple-400 transition">
+                <button className="hover:text-pink-300 transition">
                   Tài khoản
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
-                  <Link href="/profile" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">
-                    Hồ sơ
-                  </Link>
-                  {isUserAdmin && (
-                    <Link href="/admin" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">
-                      Quản trị
+                <div className="absolute right-0 top-6 w-48 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                  <div className="h-2"></div>
+                  <div className="bg-indigo-900 rounded-md shadow-lg py-1">
+                    <Link href="/profile" className="block px-4 py-2 text-sm text-white hover:bg-purple-800">
+                      Hồ sơ
                     </Link>
-                  )}
-                  <button 
-                    onClick={() => {
-                      localStorage.removeItem('token');
-                      localStorage.removeItem('userData');
-                      window.location.href = '/';
-                    }} 
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
-                  >
-                    Đăng xuất
-                  </button>
+                    {isUserAdmin && (
+                      <Link href="/admin" className="block px-4 py-2 text-sm text-white hover:bg-purple-800">
+                        Quản trị
+                      </Link>
+                    )}
+                    <button 
+                      onClick={handleLogout} 
+                      className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-purple-800"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
-              <Link href="/login" className="hover:text-purple-400 transition">Đăng nhập</Link>
+              <Link href="/login" className="hover:text-pink-300 transition">Đăng nhập</Link>
             )}
           </nav>
           
@@ -122,25 +135,25 @@ export default function Header() {
         
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 border-t border-gray-700 pt-4">
+          <div className="md:hidden mt-4 border-t border-white/20 pt-4">
             <nav className="flex flex-col space-y-3">
               <Link 
                 href="/" 
-                className="hover:text-purple-400 transition"
+                className="hover:text-pink-300 transition"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Trang chủ
               </Link>
               <Link 
                 href="/numerology" 
-                className="hover:text-purple-400 transition"
+                className="hover:text-pink-300 transition"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Thần Số Học
               </Link>
               <Link 
                 href="/astrology" 
-                className="hover:text-purple-400 transition"
+                className="hover:text-pink-300 transition"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Chiêm Tinh
@@ -150,7 +163,7 @@ export default function Header() {
                 <>
                   <Link 
                     href="/profile" 
-                    className="hover:text-purple-400 transition"
+                    className="hover:text-pink-300 transition"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Hồ sơ
@@ -158,19 +171,15 @@ export default function Header() {
                   {isUserAdmin && (
                     <Link 
                       href="/admin" 
-                      className="hover:text-purple-400 transition"
+                      className="hover:text-pink-300 transition"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Quản trị
                     </Link>
                   )}
                   <button 
-                    onClick={() => {
-                      localStorage.removeItem('token');
-                      localStorage.removeItem('userData');
-                      window.location.href = '/';
-                    }} 
-                    className="text-left hover:text-purple-400 transition"
+                    onClick={handleLogout} 
+                    className="text-left hover:text-pink-300 transition"
                   >
                     Đăng xuất
                   </button>
@@ -178,7 +187,7 @@ export default function Header() {
               ) : (
                 <Link 
                   href="/login" 
-                  className="hover:text-purple-400 transition"
+                  className="hover:text-pink-300 transition"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Đăng nhập
