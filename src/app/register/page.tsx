@@ -5,6 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { userApi, CreateUserRequest } from '@/lib/api';
 
+interface BirthDateComponents {
+  day: string;
+  month: string;
+  year: string;
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<CreateUserRequest>({
@@ -14,26 +20,65 @@ export default function RegisterPage() {
     password: '',
     birthDate: '',
   });
+  const [birthDateComponents, setBirthDateComponents] = useState<BirthDateComponents>({
+    day: '',
+    month: '',
+    year: '',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Tính toán ngày tối đa cho phép (10 năm trước từ ngày hiện tại)
-  const calculateMaxDate = (): string => {
+  // Tính toán năm tối thiểu và tối đa cho dropdown
+  const calculateYearRange = (): { minYear: number; maxYear: number } => {
     const today = new Date();
-    const maxDate = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
-    return maxDate.toISOString().split('T')[0];
+    const maxYear = today.getFullYear() - 10; // Người dùng phải đủ 10 tuổi
+    const minYear = maxYear - 90; // Giả sử người dùng không quá 100 tuổi
+    return { minYear, maxYear };
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Tạo mảng số từ min đến max
+  const range = (min: number, max: number): number[] => {
+    const result = [];
+    for (let i = min; i <= max; i++) {
+      result.push(i);
+    }
+    return result;
+  };
+
+  // Tạo mảng ngày từ 1-31
+  const days = range(1, 31);
+  
+  // Tạo mảng tháng từ 1-12
+  const months = range(1, 12);
+  
+  // Tạo mảng năm từ minYear đến maxYear
+  const { minYear, maxYear } = calculateYearRange();
+  const years = range(minYear, maxYear).reverse(); // Đảo ngược để hiển thị năm gần đây nhất lên đầu
+
+  // Lấy số ngày tối đa trong tháng
+  const getDaysInMonth = (month: number, year: number): number => {
+    return new Date(year, month, 0).getDate();
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     // Xử lý đặc biệt cho trường ngày sinh
-    if (name === 'birthDate') {
-      // Lưu giá trị gốc để hiển thị trong input
-      setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'day' || name === 'month' || name === 'year') {
+      const updatedBirthDateComponents = {
+        ...birthDateComponents,
+        [name]: value,
+      };
       
-      // Kiểm tra định dạng ngày trên iOS đã được xử lý trong normalizeBirthDate
-      console.log('Ngày sinh được nhập:', value);
+      setBirthDateComponents(updatedBirthDateComponents);
+      
+      // Chỉ cập nhật formData.birthDate khi đã có đủ ngày, tháng, năm
+      if (updatedBirthDateComponents.day && updatedBirthDateComponents.month && updatedBirthDateComponents.year) {
+        // Format YYYY-MM-DD
+        const formattedDate = `${updatedBirthDateComponents.year}-${updatedBirthDateComponents.month.padStart(2, '0')}-${updatedBirthDateComponents.day.padStart(2, '0')}`;
+        setFormData(prev => ({ ...prev, birthDate: formattedDate }));
+        console.log('Ngày sinh được cập nhật:', formattedDate);
+      }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -42,11 +87,22 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Kiểm tra xem đã chọn đủ ngày tháng năm chưa
+    if (!birthDateComponents.day || !birthDateComponents.month || !birthDateComponents.year) {
+      setError('Vui lòng chọn đầy đủ ngày, tháng và năm sinh');
+      return;
+    }
+    
     // Kiểm tra ngày sinh hợp lệ
     if (formData.birthDate) {
       try {
         const birthDate = new Date(formData.birthDate);
-        const maxDate = new Date(calculateMaxDate());
+        const maxDate = new Date(new Date().getFullYear() - 10, new Date().getMonth(), new Date().getDate());
+        
+        if (isNaN(birthDate.getTime())) {
+          setError('Ngày sinh không hợp lệ');
+          return;
+        }
         
         if (birthDate > maxDate) {
           setError('Bạn phải đủ 10 tuổi để đăng ký tài khoản này.');
@@ -169,18 +225,59 @@ export default function RegisterPage() {
               <label htmlFor="birthDate" className="block text-sm font-medium text-white/80 mb-1">
                 Ngày sinh
               </label>
-              <input
-                id="birthDate"
-                name="birthDate"
-                type="date"
-                pattern="\d{4}-\d{2}-\d{2}"
-                required
-                max={calculateMaxDate()}
-                className="appearance-none rounded-lg relative block w-full px-4 py-3 bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:z-10 sm:text-sm transition"
-                value={formData.birthDate}
-                onChange={handleChange}
-              />
-              <p className="mt-1 text-xs text-white/60">Nhập định dạng YYYY-MM-DD (ví dụ: 1997-02-09)</p>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <select
+                    id="day"
+                    name="day"
+                    required
+                    className="appearance-none rounded-lg relative block w-full px-4 py-3 bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:z-10 sm:text-sm transition"
+                    value={birthDateComponents.day}
+                    onChange={handleChange}
+                  >
+                    <option value="">Ngày</option>
+                    {days.map(day => (
+                      <option key={day} value={String(day).padStart(2, '0')}>
+                        {day}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <select
+                    id="month"
+                    name="month"
+                    required
+                    className="appearance-none rounded-lg relative block w-full px-4 py-3 bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:z-10 sm:text-sm transition"
+                    value={birthDateComponents.month}
+                    onChange={handleChange}
+                  >
+                    <option value="">Tháng</option>
+                    {months.map(month => (
+                      <option key={month} value={String(month).padStart(2, '0')}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <select
+                    id="year"
+                    name="year"
+                    required
+                    className="appearance-none rounded-lg relative block w-full px-4 py-3 bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:z-10 sm:text-sm transition"
+                    value={birthDateComponents.year}
+                    onChange={handleChange}
+                  >
+                    <option value="">Năm</option>
+                    {years.map(year => (
+                      <option key={year} value={String(year)}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
