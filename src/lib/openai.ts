@@ -1,13 +1,35 @@
 import OpenAI from 'openai';
 
 // Khởi tạo client OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openai = (() => {
+  // Chỉ khởi tạo trong môi trường server-side, không phải lúc build hoặc client-side
+  if (typeof window === 'undefined' && process.env.NODE_ENV !== 'test') {
+    // Nếu không có API key, trả về đối tượng rỗng trong quá trình build
+    if (!process.env.OPENAI_API_KEY && process.env.NODE_ENV === 'production') {
+      console.warn('Thiếu OPENAI_API_KEY trong môi trường production');
+    }
+    
+    return new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build-time',
+    });
+  }
+  
+  // Trả về đối tượng giả cho client-side hoặc lúc build
+  // @ts-ignore - Bỏ qua kiểm tra type
+  return {} as OpenAI;
+})();
 
 // Hàm gọi đến ChatGPT để sinh dữ liệu thần số học
 export async function generateNumerologyData(prompt: string): Promise<string> {
   try {
+    // Trong quá trình build hoặc nếu không có API key, trả về đối tượng trống
+    if (typeof window !== 'undefined' || !process.env.OPENAI_API_KEY) {
+      console.warn('Không thể gọi OpenAI API trong môi trường client hoặc thiếu API key');
+      return JSON.stringify({ 
+        message: "Đây là dữ liệu mẫu cho quá trình build. Dữ liệu thực sẽ được tạo khi chạy server."
+      });
+    }
+
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',  // Sử dụng model mạnh nhất có sẵn
       messages: [
