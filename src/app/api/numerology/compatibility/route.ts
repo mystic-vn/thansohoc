@@ -214,7 +214,7 @@ export async function GET(request: Request) {
         },
         'compatibility-api',
         cacheParams,
-        7200 // Cache 2 giờ
+        259200 // Cache 3 ngày
       );
       
       return NextResponse.json(result);
@@ -271,7 +271,7 @@ export async function GET(request: Request) {
       },
       'compatibility-api',
       cacheParams,
-      7200 // Cache 2 giờ
+      259200 // Cache 3 ngày
     ).then(result => {
       if (result.error) {
         return NextResponse.json({ error: result.error }, { status: result.status || 404 });

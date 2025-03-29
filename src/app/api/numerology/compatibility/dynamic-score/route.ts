@@ -226,7 +226,7 @@ export async function GET(request: Request) {
       },
       'dynamic-score-api',
       cacheParams,
-      900 // Cache 15 phút để vẫn giữ tính "động"
+      3600 // Cache 1 giờ thay vì 15 phút
     );
     
     return NextResponse.json(result);
