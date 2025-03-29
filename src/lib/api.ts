@@ -56,6 +56,54 @@ export interface ResendOtpRequest {
   email: string;
 }
 
+// Website interfaces
+export interface WebsiteSettings {
+  _id?: string;
+  name: string;
+  description?: string;
+  logo?: string;
+  favicon?: string;
+  contactEmail: string;
+  contactPhone?: string;
+  address?: string;
+  socialMedia?: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    youtube?: string;
+    linkedin?: string;
+  };
+  footer?: {
+    copyright: string;
+    showYear?: boolean;
+    links?: Array<{
+      title: string;
+      url: string;
+    }>;
+  };
+  seo?: {
+    title: string;
+    description: string;
+    keywords: string[];
+    ogImage?: string;
+  };
+}
+
+// Helper function để lấy headers với token xác thực
+const getAuthHeaders = () => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  
+  // Thêm debug log để kiểm tra token
+  if (typeof window !== 'undefined') {
+    console.log('🔑 Token từ localStorage:', token ? `${token.substring(0, 15)}...` : 'không có token');
+  }
+  
+  return {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+};
+
 // API Functions
 export const userApi = {
   // Get all users
@@ -318,5 +366,92 @@ export const userApi = {
       localStorage.removeItem('userName');
       document.cookie = `${process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     }
+  },
+
+  // Lấy tất cả cài đặt website
+  getSettings: async (): Promise<WebsiteSettings> => {
+    const response = await fetch(`${API_URL}/website/settings`, {
+      headers: getAuthHeaders(),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Lỗi khi lấy cài đặt website');
+    }
+    
+    return await response.json();
+  },
+  
+  // Cập nhật cài đặt website (yêu cầu quyền admin)
+  updateSettings: async (data: Partial<WebsiteSettings>): Promise<WebsiteSettings> => {
+    const response = await fetch(`${API_URL}/website/settings`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Lỗi khi cập nhật cài đặt website');
+    }
+    
+    return await response.json();
+  },
+};
+
+// Tạo websiteApi riêng để quản lý cài đặt website
+export const websiteApi = {
+  // Lấy tất cả cài đặt website
+  getSettings: async (): Promise<WebsiteSettings> => {
+    const response = await fetch(`${API_URL}/website/settings`, {
+      headers: getAuthHeaders(),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Lỗi khi lấy cài đặt website');
+    }
+    
+    return await response.json();
+  },
+  
+  // Cập nhật cài đặt website (yêu cầu quyền admin)
+  updateSettings: async (data: Partial<WebsiteSettings>): Promise<WebsiteSettings> => {
+    const response = await fetch(`${API_URL}/website/settings`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Lỗi khi cập nhật cài đặt website');
+    }
+    
+    return await response.json();
+  },
+  
+  // Lấy cài đặt footer
+  getFooterSettings: async (): Promise<any> => {
+    const response = await fetch(`${API_URL}/website/footer`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Lỗi khi lấy cài đặt footer');
+    }
+    
+    return await response.json();
+  },
+  
+  // Lấy cài đặt SEO
+  getSeoSettings: async (): Promise<any> => {
+    const response = await fetch(`${API_URL}/website/seo`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Lỗi khi lấy cài đặt SEO');
+    }
+    
+    return await response.json();
   },
 }; 
