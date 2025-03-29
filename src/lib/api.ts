@@ -96,6 +96,12 @@ const getAuthHeaders = () => {
   // Thêm debug log để kiểm tra token
   if (typeof window !== 'undefined') {
     console.log('🔑 Token từ localStorage:', token ? `${token.substring(0, 15)}...` : 'không có token');
+    
+    // Kiểm tra nếu có userData nhưng không có token, có thể là token đã hết hạn
+    const hasUserData = localStorage.getItem('userData') !== null;
+    if (!token && hasUserData) {
+      console.warn('⚠️ Phát hiện có userData nhưng không có token, có thể cần đăng nhập lại');
+    }
   }
   
   return {

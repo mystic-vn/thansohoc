@@ -28,10 +28,18 @@ export class RolesGuard implements CanActivate {
     // Kiểm tra role trong cả 2 trường hợp: role là string hoặc roles là array
     if (user.role) {
       // Nếu user có trường role dạng string (cấu trúc phổ biến nhất)
-      return roles.some(role => role === user.role);
+      console.log('🔑 Kiểm tra role:', {required: roles, userRole: user.role});
+      
+      // So sánh không phân biệt hoa thường để tránh lỗi 'Admin' vs 'admin'
+      return roles.some(role => 
+        role.toLowerCase() === user.role.toLowerCase()
+      );
     } else if (user.roles && Array.isArray(user.roles)) {
       // Nếu user có trường roles dạng array
-      return this.matchRoles(roles, user.roles);
+      console.log('🔑 Kiểm tra roles array:', {required: roles, userRoles: user.roles});
+      
+      // So sánh không phân biệt hoa thường
+      return this.matchRolesIgnoreCase(roles, user.roles);
     }
     
     return false; // Mặc định từ chối nếu không có thông tin quyền
@@ -39,5 +47,9 @@ export class RolesGuard implements CanActivate {
 
   private matchRoles(requiredRoles: string[], userRoles: string[]): boolean {
     return requiredRoles.some(role => userRoles.includes(role));
+  }
+
+  private matchRolesIgnoreCase(requiredRoles: string[], userRoles: string[]): boolean {
+    return requiredRoles.some(role => userRoles.some(userRole => userRole.toLowerCase() === role.toLowerCase()));
   }
 } 

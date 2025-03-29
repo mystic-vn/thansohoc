@@ -20,6 +20,13 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
+        // Debug token
+        const token = localStorage.getItem('token');
+        console.log('🔑 Admin Settings: Token hiện tại:', token ? `${token.substring(0, 15)}...` : 'không có token');
+        
+        const userData = localStorage.getItem('userData');
+        console.log('👤 Admin Settings: User data:', userData ? 'Có dữ liệu' : 'Không có dữ liệu');
+        
         const data = await websiteApi.getSettings();
         setSettings(data);
       } catch (error) {
@@ -44,18 +51,38 @@ export default function SettingsPage() {
     setSaveMessage(null);
     
     try {
+      // Debug token trước khi gửi cập nhật
+      const token = localStorage.getItem('token');
+      console.log('🔑 Admin Settings - Update: Token hiện tại:', token ? `${token.substring(0, 15)}...` : 'không có token');
+      
       const updatedSettings = await websiteApi.updateSettings(settings);
       setSettings(updatedSettings);
       setSaveMessage({
         type: 'success',
         text: 'Cài đặt website đã được cập nhật thành công'
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Lỗi khi cập nhật cài đặt:', error);
-      setSaveMessage({
-        type: 'error',
-        text: 'Không thể cập nhật cài đặt website. Vui lòng thử lại sau.'
-      });
+      
+      // Kiểm tra nếu lỗi liên quan đến xác thực
+      if (error.message?.includes('Xác thực') || error.message?.includes('Unauthorized')) {
+        setSaveMessage({
+          type: 'error',
+          text: 'Lỗi xác thực. Vui lòng đăng nhập lại và thử lại sau.'
+        });
+        
+        // Tự động redirect đến trang login sau 3 giây
+        setTimeout(() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userData');
+          window.location.href = '/login';
+        }, 3000);
+      } else {
+        setSaveMessage({
+          type: 'error',
+          text: 'Không thể cập nhật cài đặt website. Vui lòng thử lại sau.'
+        });
+      }
     } finally {
       setSaving(false);
     }
