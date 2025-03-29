@@ -1,91 +1,193 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { FiLogOut, FiUser } from 'react-icons/fi';
-import { userApi } from '@/lib/api';
-import { removeCookie } from '@/lib/cookies';
+import Image from 'next/image';
+import { useWebsiteSettings } from '@/contexts/WebsiteSettingsContext';
+import { isAuthenticated, isAdmin } from '@/lib/auth';
 
-interface HeaderProps {
-  isAuthenticated: boolean;
-  userName: string;
-}
+export default function Header() {
+  const { settings, loading } = useWebsiteSettings();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
-const Header: React.FC<HeaderProps> = ({ isAuthenticated, userName }) => {
-  const router = useRouter();
-  const [showMenu, setShowMenu] = useState(false);
-
-  const handleLogout = () => {
-    userApi.logout();
-    removeCookie(process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'token');
-    router.push('/login');
-  };
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authenticated = await isAuthenticated();
+      setLoggedIn(authenticated);
+      
+      if (authenticated) {
+        const admin = await isAdmin();
+        setIsUserAdmin(admin);
+      }
+    };
+    
+    checkAuth();
+  }, []);
 
   const toggleMenu = () => {
-    setShowMenu(!showMenu);
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
-    <header className="bg-black/30 backdrop-blur-md">
-      <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="text-xl font-bold">Thần Số Học</div>
-        </Link>
-        <nav className="flex items-center space-x-4">
-          {isAuthenticated ? (
-            <>
-              <Link href="/numerology" className="px-4 py-2 rounded hover:bg-indigo-600/30 transition">
-                Thần Số Học
-              </Link>
-              <Link href="/astrology" className="px-4 py-2 rounded hover:bg-indigo-600/30 transition">
-                Cung Hoàng Đạo
-              </Link>
-              <div className="relative">
-                <button 
-                  onClick={toggleMenu}
-                  className="flex items-center px-4 py-2 rounded hover:bg-indigo-600/30 transition"
-                >
-                  <span className="mr-1">Xin chào, {userName}</span>
-                  <FiUser className="ml-1 text-xs" />
-                </button>
-                {showMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    <Link 
-                      href="/profile"
-                      className="flex items-center w-full text-gray-700 px-4 py-2 text-sm hover:bg-gray-100"
-                    >
-                      <FiUser className="mr-2" />
-                      Trang cá nhân
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full text-gray-700 px-4 py-2 text-sm hover:bg-gray-100"
-                    >
-                      <FiLogOut className="mr-2" />
-                      Đăng xuất
-                    </button>
-                  </div>
-                )}
+    <header className="bg-black/30 backdrop-blur-md text-white py-4">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center">
+          <Link href="/" className="flex items-center space-x-3">
+            {settings?.logo ? (
+              <Image 
+                src={settings.logo} 
+                alt={settings?.name || 'Thần Số Học'} 
+                width={40} 
+                height={40} 
+                className="rounded-full" 
+              />
+            ) : (
+              <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-xl font-bold">
+                T
               </div>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="px-4 py-2 rounded hover:bg-indigo-600/30 transition">
-                Đăng nhập
+            )}
+            <span className="text-xl font-bold">{settings?.name || 'Thần Số Học'}</span>
+          </Link>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-6">
+            <Link href="/" className="hover:text-purple-400 transition">Trang chủ</Link>
+            <Link href="/numerology" className="hover:text-purple-400 transition">Thần Số Học</Link>
+            <Link href="/astrology" className="hover:text-purple-400 transition">Chiêm Tinh</Link>
+            
+            {loggedIn ? (
+              <div className="relative group">
+                <button className="hover:text-purple-400 transition">
+                  Tài khoản
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                  <Link href="/profile" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">
+                    Hồ sơ
+                  </Link>
+                  {isUserAdmin && (
+                    <Link href="/admin" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">
+                      Quản trị
+                    </Link>
+                  )}
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem('token');
+                      localStorage.removeItem('userData');
+                      window.location.href = '/';
+                    }} 
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                  >
+                    Đăng xuất
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link href="/login" className="hover:text-purple-400 transition">Đăng nhập</Link>
+            )}
+          </nav>
+          
+          {/* Mobile menu button */}
+          <button 
+            onClick={toggleMenu}
+            className="md:hidden text-white"
+            aria-label="Toggle menu"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-6 w-6" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              {isMenuOpen ? (
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M6 18L18 6M6 6l12 12" 
+                />
+              ) : (
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M4 6h16M4 12h16M4 18h16" 
+                />
+              )}
+            </svg>
+          </button>
+        </div>
+        
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 border-t border-gray-700 pt-4">
+            <nav className="flex flex-col space-y-3">
+              <Link 
+                href="/" 
+                className="hover:text-purple-400 transition"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Trang chủ
               </Link>
               <Link 
-                href="/register" 
-                className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full hover:from-indigo-600 hover:to-purple-700 transition"
+                href="/numerology" 
+                className="hover:text-purple-400 transition"
+                onClick={() => setIsMenuOpen(false)}
               >
-                Đăng ký
+                Thần Số Học
               </Link>
-            </>
-          )}
-        </nav>
+              <Link 
+                href="/astrology" 
+                className="hover:text-purple-400 transition"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Chiêm Tinh
+              </Link>
+              
+              {loggedIn ? (
+                <>
+                  <Link 
+                    href="/profile" 
+                    className="hover:text-purple-400 transition"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Hồ sơ
+                  </Link>
+                  {isUserAdmin && (
+                    <Link 
+                      href="/admin" 
+                      className="hover:text-purple-400 transition"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Quản trị
+                    </Link>
+                  )}
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem('token');
+                      localStorage.removeItem('userData');
+                      window.location.href = '/';
+                    }} 
+                    className="text-left hover:text-purple-400 transition"
+                  >
+                    Đăng xuất
+                  </button>
+                </>
+              ) : (
+                <Link 
+                  href="/login" 
+                  className="hover:text-purple-400 transition"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Đăng nhập
+                </Link>
+              )}
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );
-};
-
-export default Header; 
+} 
