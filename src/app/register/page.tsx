@@ -74,10 +74,22 @@ export default function RegisterPage() {
       
       // Chỉ cập nhật formData.birthDate khi đã có đủ ngày, tháng, năm
       if (updatedBirthDateComponents.day && updatedBirthDateComponents.month && updatedBirthDateComponents.year) {
-        // Format YYYY-MM-DD
-        const formattedDate = `${updatedBirthDateComponents.year}-${updatedBirthDateComponents.month.padStart(2, '0')}-${updatedBirthDateComponents.day.padStart(2, '0')}`;
-        setFormData(prev => ({ ...prev, birthDate: formattedDate }));
-        console.log('Ngày sinh được cập nhật:', formattedDate);
+        try {
+          // Format YYYY-MM-DD
+          const formattedDate = `${updatedBirthDateComponents.year}-${updatedBirthDateComponents.month.padStart(2, '0')}-${updatedBirthDateComponents.day.padStart(2, '0')}`;
+          
+          // Kiểm tra tính hợp lệ của ngày tháng
+          const dateObj = new Date(formattedDate);
+          if (isNaN(dateObj.getTime())) {
+            console.error('Ngày tháng không hợp lệ:', formattedDate);
+            return;
+          }
+          
+          setFormData(prev => ({ ...prev, birthDate: formattedDate }));
+          console.log('Ngày sinh được cập nhật:', formattedDate);
+        } catch (error) {
+          console.error('Lỗi khi định dạng ngày sinh:', error);
+        }
       }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -119,13 +131,30 @@ export default function RegisterPage() {
       setLoading(true);
       setError(null);
       
+      console.log('Đang gửi dữ liệu đăng ký:', {
+        ...formData,
+        password: '******' // Ẩn mật khẩu trong log
+      });
+      
       const user = await userApi.create(formData);
+      console.log('Đăng ký thành công:', user);
       
       // Chuyển hướng đến trang xác thực email
       router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.');
+      console.error('Chi tiết lỗi đăng ký:', err);
+      let errorMessage = 'Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.';
+      
+      // Xử lý các trường hợp lỗi cụ thể
+      if (err.message?.includes('email')) {
+        errorMessage = 'Email này đã được sử dụng. Vui lòng dùng email khác.';
+      } else if (err.message?.includes('password')) {
+        errorMessage = 'Mật khẩu không đủ mạnh. Vui lòng sử dụng ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.';
+      } else if (err.message?.includes('Network Error') || err.message?.includes('timeout')) {
+        errorMessage = 'Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet của bạn và thử lại.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

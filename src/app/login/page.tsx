@@ -54,32 +54,39 @@ export default function LoginPage() {
       // Lưu token vào cả localStorage và cookie để đảm bảo nhất quán
       if (typeof window !== 'undefined') {
         console.log('Lưu token vào localStorage và cookie...');
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('userName', `${response.firstName} ${response.lastName}`);
-        
-        // Lưu thông tin người dùng đầy đủ vào localStorage để dùng cho kiểm tra quyền
-        const userData = {
-          id: response.id,
-          _id: response._id,
-          firstName: response.firstName,
-          lastName: response.lastName,
-          email: response.email,
-          role: response.role,
-          isAdmin: response.role === 'Admin',
-          status: response.status
-        };
-        localStorage.setItem('userData', JSON.stringify(userData));
-        console.log('Đã lưu thông tin người dùng:', userData);
-        
-        // Đặt cookie với thời hạn 7 ngày
-        const cookieName = process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'token';
-        document.cookie = `${cookieName}=${response.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+        try {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('userName', `${response.firstName} ${response.lastName}`);
+          
+          // Lưu thông tin người dùng đầy đủ vào localStorage để dùng cho kiểm tra quyền
+          const userData = {
+            id: response.id,
+            _id: response._id,
+            firstName: response.firstName,
+            lastName: response.lastName,
+            email: response.email,
+            role: response.role,
+            isAdmin: response.role === 'Admin',
+            status: response.status
+          };
+          localStorage.setItem('userData', JSON.stringify(userData));
+          console.log('Đã lưu thông tin người dùng:', userData);
+          
+          // Đặt cookie với thời hạn 7 ngày và các thuộc tính tương thích
+          const cookieName = process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'token';
+          const expires = new Date();
+          expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
+          document.cookie = `${cookieName}=${response.token}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
+        } catch (err) {
+          console.error('Lỗi khi lưu trữ token:', err);
+          // Tiếp tục ngay cả khi lưu vào localStorage lỗi
+        }
       }
       
       // Kiểm tra trạng thái xác thực email
       if (!response.isEmailVerified) {
         // Nếu email chưa được xác thực, chuyển hướng đến trang xác thực email
-        router.push(`/verify-email?email=${formData.email}`);
+        router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
         return;
       }
       
@@ -93,7 +100,17 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error('Lỗi đăng nhập:', err);
-      setError(err.message || 'Đăng nhập không thành công. Vui lòng thử lại.');
+      
+      let errorMessage = 'Đăng nhập không thành công. Vui lòng thử lại.';
+      
+      // Xử lý các loại lỗi cụ thể
+      if (err.message?.includes('email') || err.message?.includes('password')) {
+        errorMessage = 'Email hoặc mật khẩu không đúng.';
+      } else if (err.message?.includes('Network Error') || err.message?.includes('timeout')) {
+        errorMessage = 'Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet của bạn và thử lại.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
