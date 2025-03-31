@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Đăng Nhập</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background: linear-gradient(to bottom, #4338ca, #7e22ce, #db2777);
+      color: white;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: white;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(to right, #6366f1, #a855f7);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: linear-gradient(to right, #4f46e5, #9333ea);
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: rgba(0, 0, 0, 0.2);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .error {
+      background-color: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+    }
+    .success {
+      background-color: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Test Đăng Nhập</h1>
+    <div>
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Mật khẩu" />
+      <button id="loginBtn">Đăng nhập</button>
+    </div>
+    <div id="result" class="result">Chưa thực hiện đăng nhập</div>
+  </div>
+
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', async function() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const resultDiv = document.getElementById('result');
+      
+      if (!email || !password) {
+        resultDiv.textContent = 'Vui lòng nhập đầy đủ email và mật khẩu';
+        resultDiv.className = 'result error';
+        return;
+      }
+      
+      resultDiv.textContent = 'Đang đăng nhập...';
+      resultDiv.className = 'result';
+      
+      try {
+        // Sử dụng URL tương đối để tránh vấn đề CORS
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        
+        resultDiv.textContent = `Status: ${response.status}\n`;
+        
+        const responseText = await response.text();
+        resultDiv.textContent += `Response: ${responseText}\n`;
+        
+        try {
+          const data = JSON.parse(responseText);
+          
+          if (response.ok && data.token) {
+            resultDiv.textContent += '\nĐăng nhập thành công!';
+            resultDiv.className = 'result success';
+            
+            // Lưu token
+            localStorage.setItem('token', data.token);
+            sessionStorage.setItem('token', data.token);
+            
+            // Chuyển hướng sau 2 giây
+            resultDiv.textContent += '\nĐang chuyển hướng về trang chủ...';
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 2000);
+          } else {
+            resultDiv.textContent += `\nLỗi: ${data.message || 'Đăng nhập thất bại'}`;
+            resultDiv.className = 'result error';
+          }
+        } catch (e) {
+          resultDiv.textContent += `\nLỗi phân tích dữ liệu: ${e.message}`;
+          resultDiv.className = 'result error';
+        }
+      } catch (error) {
+        resultDiv.textContent = `Lỗi: ${error.message}`;
+        resultDiv.className = 'result error';
+      }
+    });
+  </script>
+</body>
+</html> 

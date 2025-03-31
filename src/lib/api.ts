@@ -1,3 +1,5 @@
+import { safeGetItem } from './safeStorage';
+
 // Đường dẫn API cơ sở
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
@@ -91,22 +93,17 @@ export interface WebsiteSettings {
 
 // Helper function để lấy headers với token xác thực
 const getAuthHeaders = () => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const token = safeGetItem('token');
   
   // Thêm debug log để kiểm tra token
   if (typeof window !== 'undefined') {
-    console.log('🔑 Token từ localStorage:', token ? `${token.substring(0, 15)}...` : 'không có token');
-    
-    // Kiểm tra nếu có userData nhưng không có token, có thể là token đã hết hạn
-    const hasUserData = localStorage.getItem('userData') !== null;
-    if (!token && hasUserData) {
-      console.warn('⚠️ Phát hiện có userData nhưng không có token, có thể cần đăng nhập lại');
-    }
+    console.log('🔑 Token từ safeGetItem:', token ? `${token.substring(0, 15)}...` : 'không có token');
   }
   
   return {
-    'Authorization': `Bearer ${token}`,
+    'Authorization': token ? `Bearer ${token}` : '',
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache' // Thêm cache-control để tránh cache
   };
 };
 
