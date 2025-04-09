@@ -24,6 +24,12 @@ export async function POST(request: NextRequest) {
     // Lấy dữ liệu từ response
     const data = await response.json();
     
+    console.log('Backend response:', {
+      status: response.status,
+      ok: response.ok,
+      data: data
+    });
+    
     // Nếu đăng nhập thành công
     if (response.ok && data.token) {
       // Tạo response với cookie
